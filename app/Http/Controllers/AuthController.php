@@ -74,11 +74,11 @@ class AuthController extends Controller
                 'no_telp'        => $user->com_user_pendamping()->exists() ? $user->com_user_pendamping()->first()->no_telp : '',
                 'user_img'       => $user->com_user_pendamping()->exists() ? 'http://ftp.itani.id/images/pendamping/' . $user->com_user_pendamping()->first()->image_file_name : '',
                 'alamat_tinggal' => $user->com_user_pendamping()->exists() ? $user->com_user_pendamping()->first()->tempat_lahir : '',
-                'petani_id'     => $user->com_user_petani_sf()->exists() ? $user->com_user_petani_sf->first()->petani_id : null,
+                'petani_id'     => $user->com_user_petani_sf()->exists() ? $user->com_user_petani_sf()->first()->petani_id : null,
                 'pendamping_kd'  => $data != null ? $data->pendamping_kd : '',
-                'cluster_id'     => $data != null ? $data->cluster_id : '',
+                'cluster_id'     => ($user->com_role_user_sf()->first()->role_id == '02001') ? $user->com_user_petani_sf()->first()->cluster_id : (($data != null) ? $data->cluster_id : ''),
                 'cluster_nama'   => $data != null ? $data->cluster_nama : '',
-                'subcluster_id'  => $data != null ? $data->subcluster_id : '',
+                'subcluster_id'  => ($user->com_role_user_sf()->first()->role_id == '02001') ? $user->com_user_petani_sf()->first()->subcluster_id : (($data != null) ? $data->cluster_id : ''),
                 'subcluster_nama' => $data != null ? $data->subcluster_nama : '',
             );
             $access = [
