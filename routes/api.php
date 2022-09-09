@@ -26,6 +26,23 @@ Route::get('change-password', [TestController::class, 'insertPassword']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+Route::prefix('smartfarming')->group(function () {
+    Route::get('/home/summary/{subcluster_id}', [SmartFarmingMobileAOController::class, 'summaryGet']);
+    Route::get('petani/{subcluster_id}', [SmartFarmingMobileAOController::class, 'petaniGetAll']);
+    Route::get('petani/detail/{petaniID}', [SmartFarmingMobileAOController::class, 'petaniGetDetail']);
+    Route::get('/pengajuan_pembiayaan/{subcluster_id}', [SmartFarmingMobileAOController::class, 'getListPengajuanPembiayaanBySubClusterID']);
+    Route::get('/jenjang_pendidikan', [SmartFarmingMobileAOController::class, 'getJenjangPendidikan']);
+    Route::get('/komoditas', [SmartFarmingMobileAOController::class, 'getKomoditas']);
+    Route::get('/provinsi', [SmartFarmingMobileAOController::class, 'getProvinsi']);
+    Route::get('/lahan/{subcluster_id}', [SmartFarmingMobileAOController::class, 'getLahanBySubclusterID']);
+    Route::get('/kios', [SmartFarmingMobileAOController::class, 'getKios']);
+    Route::get('/varietas/by_komoditas', [SmartFarmingMobileAOController::class, 'getVarietasByKomoditas']);
+    Route::get('/pengajuan_pembiayaan/rab/by_luas', [SmartFarmingMobileAOController::class, 'pengajuanPembiayaanByRabLuas']);
+    Route::get('/kabupaten/by_provinsi', [SmartFarmingMobileAOController::class, 'getKabupatenByProvinsi']);
+    Route::get('/kecamatan/by_kabupaten', [SmartFarmingMobileAOController::class, 'getKecamatanByKabupaten']);
+    Route::get('/kelurahan/by_kecamatan', [SmartFarmingMobileAOController::class, 'getKelurahanByKecamatan']);
+    Route::post('/lahan', [SmartFarmingMobileAOController::class, 'postLahan']);
+});
 // Route::get('/',[PembiayaanController::class,'getLahanBysubclusterBysubcluster']);
 Route::post('/ipangan/petani/post/permintaan/kunjungan', [TestController::class, 'petaniPostPermintaanKunjungan']);
 Route::post('/ipangan/agronomis/laporan/permintaan/aktif/{pembiayaan_kunjungan_id}', [TestController::class, 'agronomisLaporanPermintaanKunjungan']);
@@ -144,22 +161,5 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/kunjungan/lahan/{pembiayaan_id}', [PetaniController::class, 'petaniGetKunjunganLahan']);
             Route::get('/get/lahan/all/{petani_id}', [PetaniController::class, 'petaniGetLahan']);
         });
-    });
-    Route::prefix('smartfarming')->group(function () {
-        Route::get('/home/summary/{subcluster_id}', [SmartFarmingMobileAOController::class, 'summaryGet']);
-        Route::get('petani/{subcluster_id}', [SmartFarmingMobileAOController::class, 'petaniGetAll']);
-        Route::get('petani/detail/{petaniID}', [SmartFarmingMobileAOController::class, 'petaniGetDetail']);
-        Route::get('/pengajuan_pembiayaan/{subcluster_id}', [SmartFarmingMobileAOController::class, 'getListPengajuanPembiayaanBySubClusterID']);
-        Route::get('/jenjang_pendidikan', [SmartFarmingMobileAOController::class, 'getJenjangPendidikan']);
-        Route::get('/komoditas', [SmartFarmingMobileAOController::class, 'getKomoditas']);
-        Route::get('/provinsi', [SmartFarmingMobileAOController::class, 'getProvinsi']);
-        Route::get('/lahan/{subcluster_id}', [SmartFarmingMobileAOController::class, 'getLahanBySubclusterID']);
-        Route::get('/kios', [SmartFarmingMobileAOController::class, 'getKios']);
-        Route::get('/varietas/by_komoditas', [SmartFarmingMobileAOController::class, 'getVarietasByKomoditas']);
-        Route::get('/pengajuan_pembiayaan/rab/by_luas', [SmartFarmingMobileAOController::class, 'pengajuanPembiayaanByRabLuas']);
-        Route::get('/kabupaten/by_provinsi', [SmartFarmingMobileAOController::class, 'getKabupatenByProvinsi']);
-        Route::get('/kecamatan/by_kabupaten', [SmartFarmingMobileAOController::class, 'getKecamatanByKabupaten']);
-        Route::get('/kelurahan/by_kecamatan', [SmartFarmingMobileAOController::class, 'getKelurahanByKecamatan']);
-        Route::post('/lahan', [SmartFarmingMobileAOController::class, 'postLahan']);
     });
 });
