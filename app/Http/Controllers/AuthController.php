@@ -78,7 +78,7 @@ class AuthController extends Controller
                 'pendamping_kd'  => $data != null ? $data->pendamping_kd : '',
                 'cluster_id'     => ($user->com_role_user_sf()->first()->role_id == '02001') ? $user->com_user_petani_sf()->first()->cluster_id : (($data != null) ? $data->cluster_id : ''),
                 'cluster_nama'   => $data != null ? $data->cluster_nama : '',
-                'subcluster_id'  => ($user->com_role_user_sf()->first()->role_id == '02001') ? $user->com_user_petani_sf()->first()->subcluster_id : (($data != null) ? $data->cluster_id : ''),
+                'subcluster_id'  => ($user->com_role_user_sf()->first()->role_id == '02001') ? $user->com_user_petani_sf()->first()->subcluster_id : (($data != null) ? $data->subcluster_id : ''),
                 'subcluster_nama' => $data != null ? $data->subcluster_nama : '',
             );
             $access = [
