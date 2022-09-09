@@ -646,6 +646,8 @@ class SmartFarmingMobileAOController extends Controller
         // return $subcluster[0]->prov_id;
         $prefix = self::PREFIX_KD_LAHAN . $subcluster[0]->prov_id . $subcluster[0]->cluster_kd . $subcluster[0]->subcluster_kd;
         // return $prefix;
+        $geojson = json_decode(request('geojson'), true);
+        // return json_encode($geojson);
         $params = array(
             'lahan_id'         => $this->generate_id(),
             'lahan_ref_id'     => $lahan_ref_id,
@@ -658,7 +660,8 @@ class SmartFarmingMobileAOController extends Controller
             'luas_sppt'        => request('luas_sppt'),
             'lahan_st'         => request('lahan_st'),
             'koordinat'        => request('koordinat'),
-            'geojson'          => '{"type":"Point","coordinates":[-48.23456,20.12345]}',
+            // 'geojson'          => '{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[110.405356,-7.735614],[110.405359,-7.735604],[110.405345,-7.735567],[110.405347,-7.735569],[110.405353,-7.73556],[110.40536,-7.735563],[110.405358,-7.735545],[110.405356,-7.735531],[110.405351,-7.735519],[110.405348,-7.735493],[110.405355,-7.735468],[110.405381,-7.735449],[110.405406,-7.73545],[110.405433,-7.735463],[110.40543,-7.73547],[110.405431,-7.735476],[110.405433,-7.735489],[110.405434,-7.735501],[110.405437,-7.735516],[110.405441,-7.735532],[110.405444,-7.735546],[110.405446,-7.735556],[110.405445,-7.735569],[110.405445,-7.735569],[110.405445,-7.735566],[110.405445,-7.735564],[110.405445,-7.735561],[110.405356,-7.735614]]]}}',
+            'geojson'          => request('geojson'),
             'alamat'           => request('alamat'),
             'rt'               => request('rt'),
             'rw'               => request('rw'),

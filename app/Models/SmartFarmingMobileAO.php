@@ -432,7 +432,7 @@ class SmartFarmingMobileAO extends Model
             mdb, mdb_name, mdd, validasi_by, validasi_by_name, validasi_at
             ) VALUES (
                 ?, ?, ?, ?, ?, ?, ?, 
-                ?, ?, ?, st_multilinestringfromtext(?), ST_GeomFromGeoJSON(?),
+                ?, ?, ?, st_multilinestringfromtext(?),  ST_GeomFromGeoJSON('{$params['geojson']}'),
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?,
                 ?, ?, ?, ?, ?, ?
@@ -449,7 +449,7 @@ class SmartFarmingMobileAO extends Model
             $params['luas_sppt'],
             $params['lahan_st'],
             $params['koordinat'],
-            $params['geojson'],
+            // $params['geojson'],
             $params['alamat'],
             $params['rt'],
             $params['rw'],
