@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\SupirController;
 use App\Http\Controllers\PetaniController;
 use App\Http\Controllers\AgronomisController;
 use App\Http\Controllers\PembiayaanController;
@@ -43,6 +44,26 @@ Route::prefix('smartfarming')->group(function () {
     Route::get('/kelurahan/by_kecamatan', [SmartFarmingMobileAOController::class, 'getKelurahanByKecamatan']);
     Route::post('/lahan', [SmartFarmingMobileAOController::class, 'postLahan']);
 });
+
+Route::prefix('supir')->group(function () {
+    Route::get('/get/id/petani', [SupirController::class, 'supirGetPetaniAktif']);
+    Route::get('/get/data/dashboard/{supirID}', [SupirController::class, 'supirGetDataDashboard']);
+    Route::get('/get/pengangkutan/aktif/{supirID}', [SupirController::class, 'supirGetPengangkutanAktif']);
+    Route::get('/get/data/akun/{userID}', [SupirController::class, 'supirGetDataAkun']);
+    Route::get('/get/pengangkutan/terkirim/{supirID}', [SupirController::class, 'supirGetPengangkutanTerkirim']);
+    Route::get('/detail/pengangkutan/terkirim/{pengankutanID}', [SupirController::class, 'supirGetDetailPengangkutanTerkirim']);
+    Route::get('/get/data/truk', [SupirController::class, 'supirGetDataTruk']);
+});
+
+/* Route::prefix('petani')->group(
+    function () {
+        Route::get('/get/jadwal/{pembiayaanID}', [PetaniController::class, 'petaniGetJadwal']);
+        Route::get('/get/hasilpanen/{pembiayaanID}', [PetaniController::class, 'petaniGetHasilPanen']);
+        Route::get('/get/saprodi/pengambilan/grub2/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup2']);
+        Route::get('/get/saprodi/pengambilan/grub3/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup3']);
+    }
+); */
+
 // Route::get('/',[PembiayaanController::class,'getLahanBysubclusterBysubcluster']);
 Route::post('/ipangan/petani/post/permintaan/kunjungan', [TestController::class, 'petaniPostPermintaanKunjungan']);
 Route::post('/ipangan/agronomis/laporan/permintaan/aktif/{pembiayaan_kunjungan_id}', [TestController::class, 'agronomisLaporanPermintaanKunjungan']);
@@ -88,6 +109,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('/del/hasil/rab/tambahan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
             Route::delete('/del/hasil/saprodi/tambahan/permintaan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
         });
+
+
         Route::prefix('ao')->group(function () {
             Route::get('/get/monitoring/pelaksanaan/{petani_id}', [AccountOfficerController::class, 'aoGetMonitoringPelaksanaan']);
             Route::get('/get/monitoring/pencairan/jumlah/{petani_id}', [AccountOfficerController::class, 'aoGetMonitoringPelaksanaan']);
@@ -160,6 +183,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/get/pembiayaan/aktif/{pembiayaan_id}', [PetaniController::class, 'petaniGetPembiayaanAktif']);
             Route::get('/kunjungan/lahan/{pembiayaan_id}', [PetaniController::class, 'petaniGetKunjunganLahan']);
             Route::get('/get/lahan/all/{petani_id}', [PetaniController::class, 'petaniGetLahan']);
+            Route::get('/get/jadwal/{pembiayaanID}', [PetaniController::class, 'petaniGetJadwal']);
+            Route::get('/get/hasilpanen/{pembiayaanID}', [PetaniController::class, 'petaniGetHasilPanen']);
+            Route::get('/get/saprodi/pengambilan/grub2/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup2']);
+            Route::get('/get/saprodi/pengambilan/grub3/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup3']);
         });
     });
 });

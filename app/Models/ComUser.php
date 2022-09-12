@@ -41,4 +41,9 @@ class ComUser extends Authenticatable
     {
         return $this->belongsToMany(MasterSidangKomite::class, 'com_user_sidangkomite', 'user_id', 'sidangkomite_id');
     }
+
+    public function com_user_supir()
+    {
+        return $this->belongsToMany(MasterSupir::class, 'com_user_supir', 'user_id', 'supir_id');
+    }
 }
