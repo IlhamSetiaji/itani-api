@@ -2,40 +2,41 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Carbon\Carbon;
 use App\Models\Petani;
+use App\Models\ComUser;
 use App\Models\Pembiayaan;
+use App\Models\MasterPajak;
 use Illuminate\Http\Request;
 use App\Models\DataTransaksi;
-use App\Models\AccountOfficer;
-use App\Helpers\ResponseFormatter;
-use App\Models\ComUser;
-use App\Models\MasterHargaGabah;
-use App\Models\MasterPajak;
-use App\Models\MasterProsesTanam;
-use App\Models\MasterRekeningPetani;
-use App\Models\MasterRetribusi;
-use App\Models\PembiayaanKunjungan;
-use App\Models\PanenPenimbanganHasil;
-use App\Models\PembiayaanFotoKegiatanPetani;
-use App\Models\PembiayaanFotoRekomendasi;
-use App\Models\PembiayaanKunjunganFile;
-use App\Models\PembiayaanLahan;
-use App\Models\PembiayaanPetani;
 use App\Models\PembiayaanRab;
-use App\Models\PembiayaanRabMingguan;
-use App\Models\PembiayaanRabTambahan;
+use App\Models\AccountOfficer;
+use App\Models\PendataanLahan;
+use App\Models\MasterRetribusi;
+use App\Models\PembiayaanLahan;
 use App\Models\PendataanPetani;
 use App\Models\PesanNotifikasi;
-use Carbon\Carbon;
-use Exception;
+use App\Models\MasterHargaGabah;
+use App\Models\PembiayaanPetani;
+use App\Models\MasterProsesTanam;
+use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
+use App\Models\PembiayaanKunjungan;
+use App\Models\MasterRekeningPetani;
+use App\Models\PanenPenimbanganHasil;
+use App\Models\PembiayaanRabMingguan;
+use App\Models\PembiayaanRabTambahan;
+use App\Models\PembiayaanKunjunganFile;
+use App\Models\PembiayaanFotoRekomendasi;
 use Illuminate\Support\Facades\Validator;
+use App\Models\PembiayaanFotoKegiatanPetani;
 
 class PetaniController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('petani');
+        /*   $this->middleware('petani'); */
     }
 
     public function petaniGetRealisasiKegiatan($pembiayaanID)
@@ -766,7 +767,6 @@ class PetaniController extends Controller
 
     }
 
-
     public function petaniPengambilanSaprodiGrup2($petaniID, $pembiayaanID)
     {
         $data = Petani::PetaniPengambilanSaprodiAll($petaniID, $pembiayaanID);
@@ -789,6 +789,7 @@ class PetaniController extends Controller
             foreach ($dataPetani as $k => $d) {
                 if ($value->proses_tanam_nama == $d->proses_tanam_nama) {
                     $arr_item = array(
+                        'pembiayaan_rab_mingguan_id' => $d->pembiayaan_rab_mingguan_id,
                         'nama_item' => $d->nama_item,
                         'jumlah' => $d->jumlah,
                         'pengambilan_st' => $d->pengambilan_st,
@@ -834,6 +835,7 @@ class PetaniController extends Controller
             foreach ($dataPetani as $k => $d) {
                 if ($value->proses_tanam_nama == $d->proses_tanam_nama) {
                     $arr_item = array(
+                        'pembiayaan_rab_mingguan_id' => $d->pembiayaan_rab_mingguan_id,
                         'nama_item' => $d->nama_item,
                         'jumlah' => $d->jumlah,
                         'pengambilan_st' => $d->pengambilan_st,
