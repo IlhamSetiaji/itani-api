@@ -785,4 +785,24 @@ class Petani extends Model
         ]);
         return $query;
     }
+
+    public function scopePetaniGetTransaksiSaldoPetani($query, $tahun, $bulan, $petaniID)
+    {
+        $query = DB::connection('mysql')->select("SELECT a.`periode_kegiatan_start`,
+        a.`periode_kegiatan_end`,ROUND(b.`harga`*a.`jumlah`) AS upah, c.nama_item,
+        a.`pencairan_date`,
+        a.kesiapan_tenaga_kerja_date,a.`pencairan_st`,
+        a.`pembayaran_date` FROM pembiayaan_rab_mingguan a
+        JOIN pembiayaan_rab b ON a.`pembiayaan_rab_id` = b.`pembiayaan_rab_id`
+        JOIN master_item_rab c ON b.`item_rab_id` = c.`item_rab_id`
+        JOIN pembiayaan_petani d ON b.`pembiayaan_id` = d.`pembiayaan_id`
+        WHERE d.petani_id= :petani_id AND c.`item_rab_id` != 32 AND
+        a.pencairan_st='yes' AND c.group_rab_id != 1
+        AND YEAR(pencairan_date)= :tahun AND MONTH(pencairan_date)= :bulan", [
+            "tahun" => $tahun,
+            "bulan" => $bulan,
+            "petani_id" => $petaniID,
+        ]);
+        return $query;
+    }
 }
