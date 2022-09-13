@@ -1007,4 +1007,21 @@ class PetaniController extends Controller
         }
         return ResponseFormatter::success($result, 'Data Panen berhasil didapatkan');
     }
+
+    public function petaniGetTransaksiSaldoPetani($tahun, $bulan, $petaniID)
+    {
+        $petani = PembiayaanPetani::where('petani_id', $petaniID)->first();
+        if (!$petani) {
+            return ResponseFormatter::error(null, 'Data petani tidak ditemukan', 404);
+        }
+        $result = Petani::PetaniGetTransaksiSaldoPetani($tahun, $bulan, $petaniID);
+        if (sizeof($result) == 0) {
+            return response()->json([
+                'data' => null,
+                'status' => 204,
+                'message' => 'Data Kosong',
+            ]);
+        }
+        return ResponseFormatter::success($result, 'Data transaksi saldo petani berhasil didapatkan');
+    }
 }
