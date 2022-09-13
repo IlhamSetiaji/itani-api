@@ -34,7 +34,7 @@ class AuthController extends Controller
             $token = $user->createToken('authToken')->plainTextToken;
             if ($user->com_role_user_sf()->first()->role_id == '02005') {
                 $data = collect(DB::connection('mysql_second')->select("SELECT a.*, c.pendamping_kd, d.cluster_nama, e.subcluster_nama
-                    FROM pendamping_agronomis a 
+                    FROM pendamping_agronomis a
                         INNER JOIN com_user_pendamping b ON a.pendamping_id = b.pendamping_id
                         INNER JOIN pendamping c ON a.pendamping_id = c.pendamping_id
                         LEFT JOIN master_cluster d ON a.cluster_id = d.cluster_id
@@ -44,7 +44,7 @@ class AuthController extends Controller
                 ]))->first();
             } elseif ($user->com_role_user_sf()->first()->role_id == '02003') {
                 $data = collect(DB::connection('mysql_second')->select("SELECT a.*, c.pendamping_kd, d.cluster_nama, e.subcluster_nama
-                    FROM pendamping_account_officer a 
+                    FROM pendamping_account_officer a
                         INNER JOIN com_user_pendamping b ON a.pendamping_id = b.pendamping_id
                         INNER JOIN pendamping c ON a.pendamping_id = c.pendamping_id
                         LEFT JOIN master_cluster d ON a.cluster_id = d.cluster_id
@@ -75,6 +75,7 @@ class AuthController extends Controller
                 'user_img'       => $user->com_user_pendamping()->exists() ? 'http://ftp.itani.id/images/pendamping/' . $user->com_user_pendamping()->first()->image_file_name : '',
                 'alamat_tinggal' => $user->com_user_pendamping()->exists() ? $user->com_user_pendamping()->first()->tempat_lahir : '',
                 'petani_id'     => $user->com_user_petani_sf()->exists() ? $user->com_user_petani_sf()->first()->petani_id : null,
+                'pendamping_id'  => $data != null ? $data->pendamping_id : '',
                 'pendamping_kd'  => $data != null ? $data->pendamping_kd : '',
                 'cluster_id'     => ($user->com_role_user_sf()->first()->role_id == '02001') ? $user->com_user_petani_sf()->first()->cluster_id : (($data != null) ? $data->cluster_id : ''),
                 'cluster_nama'   => $data != null ? $data->cluster_nama : '',
