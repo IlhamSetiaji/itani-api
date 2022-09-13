@@ -482,7 +482,7 @@ class PetaniController extends Controller
 
     public function petaniGetPesan($petaniID)
     {
-        $petani = ComUser::find($petaniID);
+        $petani = PendataanPetani::find($petaniID);
         if (!$petani) {
             return ResponseFormatter::error(null, 'Data petani tidak ditemukan', 404);
         }
@@ -981,6 +981,23 @@ class PetaniController extends Controller
             return ResponseFormatter::error(null, 'Data pembiayaan tidak ditemukan', 404);
         }
         $result = Petani::petaniGetHasilPanen($pembiayaanID);
+        if (sizeof($result) == 0) {
+            return response()->json([
+                'data' => null,
+                'status' => 204,
+                'message' => 'Data Kosong',
+            ]);
+        }
+        return ResponseFormatter::success($result, 'Data Panen berhasil didapatkan');
+    }
+
+    public function getLahanShow($lahanID)
+    {
+        $lahan = PembiayaanLahan::where('lahan_id', $lahanID)->first();
+        if (!$lahan) {
+            return ResponseFormatter::error(null, 'Data lahan tidak ditemukan', 404);
+        }
+        $result = Petani::PetaniGetPetaniLahanShow($lahanID);
         if (sizeof($result) == 0) {
             return response()->json([
                 'data' => null,
