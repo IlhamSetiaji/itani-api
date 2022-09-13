@@ -28,7 +28,7 @@ class PengangkutanRequest extends FormRequest
     public function rules()
     {
         return [
-            'pengangkutan_id' => 'required|numeric',
+            'pengangkutan_id' => 'required',
             'truk_nopol' => 'required|string',
             'supir_id' => 'required|string',
             'pengangkutan_st' => 'required|in:yes,no',
