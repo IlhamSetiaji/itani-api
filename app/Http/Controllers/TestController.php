@@ -17,6 +17,8 @@ use App\Models\PembiayaanRabMingguan;
 use App\Models\PembiayaanRabTambahan;
 use App\Models\PanenPengangkutanHasil;
 use App\Http\Requests\HasilPanenRequest;
+use App\Http\Requests\PembiayaanKunjunganRequest;
+use App\Http\Requests\PembiayaanKunjunganUpdateRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\PengangkutanRequest;
 
@@ -31,93 +33,37 @@ class TestController extends Controller
         return $microtime;
     }
 
-    public function petaniPostPermintaanKunjungan()
+    public function petaniPostPermintaanKunjungan(PembiayaanKunjunganRequest $request)
     {
-        $validator = Validator::make(request()->all(), [
-            'pembiayaan_kunjungan_id' => 'required|string',
-            'pembiayaan_id' => 'required|numeric',
-            'lahan_id' => 'required|numeric',
-            'jenis_kunjungan' => 'required|string',
-            'catatan_kunjungan' => 'required|string',
-            'mdb' => 'required|string',
-            'mdb_name' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
-        }
+        $payload = $request->validated();
+        $payload['status_kunjungan'] = 'no';
+        $payload['tanggal_dibuat'] = Carbon::now();
+        $payload['mdd'] = Carbon::now();
         try {
-            $result = PembiayaanKunjungan::create([
-                'pembiayaan_kunjungan_id' => request('pembiayaan_kunjungan_id'),
-                'pembiayaan_id' => request('pembiayaan_id'),
-                'lahan_id' => request('lahan_id'),
-                'jenis_kunjungan' => request('jenis_kunjungan'),
-                'status_kunjungan' => 'no',
-                'catatan_kunjungan' => request('catatan_kunjungan'),
-                'tanggal_dibuat' => Carbon::now(),
-                'mdb' => request('mdb'),
-                'mdb_name' => request('mdb_name'),
-                'mdd' => Carbon::now(),
-            ]);
+            $result = PembiayaanKunjungan::create($payload);
             return ResponseFormatter::success($result, 'Data berhasil diinputkan');
         } catch (Exception $e) {
-            return ResponseFormatter::error(null, $e, 400);
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
     }
 
-    public function agronomisLaporanPermintaanKunjungan($pembiayaanKunjunganID)
+    public function agronomisLaporanPermintaanKunjungan(PembiayaanKunjunganUpdateRequest $request, $pembiayaanKunjunganID)
     {
         $pembiayaanKunjungan = PembiayaanKunjungan::find($pembiayaanKunjunganID);
         if (!$pembiayaanKunjungan) {
             return ResponseFormatter::error(null, 'Data pembiayaan kunjungan tidak ditemukan', 404);
         }
-        $validator = Validator::make(request()->all(), [
-            'status_kunjungan' => 'required|string',
-            'analisis_penyebab' => 'required|string',
-            'luas_terdampak' => 'required|numeric',
-            'penyakit' => 'required|string',
-            'hama' => 'required|string',
-            'bencana' => 'required|string',
-            'hasil_pengamatan' => 'required|string',
-            'rekomendasi' => 'nullable|string',
-            'mdb' => 'required|string',
-            'mdb_name' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
-        }
+        $payload = $request->validated();
         try {
             if (request()->has('rekomendasi')) {
-                $pembiayaanKunjungan->update([
-                    'status_kunjungan' => request('status_kunjungan'),
-                    'analisis_penyebab' => request('analisis_penyebab'),
-                    'luas_terdampak' => request('luas_terdampak'),
-                    'penyakit' => request('penyakit'),
-                    'hama' => request('hama'),
-                    'bencana' => request('bencana'),
-                    'hasil_pengamatan' => request('hasil_pengamatan'),
-                    'rekomendasi' => request('rekomendasi'),
-                    'rekomendasi_st' => 'no',
-                    'mdb' => request('mdb'),
-                    'mdb_name' => request('mdb_name'),
-                ]);
+                $payload['rekomendasi_st'] = 'no';
+                $pembiayaanKunjungan->update($payload);
                 return ResponseFormatter::success($pembiayaanKunjungan, 'Data pembiayaan kunjungan berhasil diupdate');
             }
-            $pembiayaanKunjungan->update([
-                'status_kunjungan' => request('status_kunjungan'),
-                'analisis_penyebab' => request('analisis_penyebab'),
-                'luas_terdampak' => request('luas_terdampak'),
-                'penyakit' => request('penyakit'),
-                'hama' => request('hama'),
-                'bencana' => request('bencana'),
-                'hasil_pengamatan' => request('hasil_pengamatan'),
-                // 'rekomendasi' => request('rekomendasi'),
-                // 'rekomendasi_st' => 'no',
-                'mdb' => request('mdb'),
-                'mdb_name' => request('mdb_name'),
-            ]);
+            $pembiayaanKunjungan->update($payload);
             return ResponseFormatter::success($pembiayaanKunjungan, 'Data pembiayaan kunjungan berhasil diupdate');
         } catch (Exception $e) {
-            return ResponseFormatter::error(null, $e, 400);
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
     }
 
