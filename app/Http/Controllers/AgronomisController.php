@@ -23,10 +23,10 @@ use Illuminate\Support\Facades\Validator;
 
 class AgronomisController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('agronomis');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('agronomis');
+    // }
 
     public function agronomisGetRabTambahan($pembiayaanID)
     {
