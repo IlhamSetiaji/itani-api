@@ -19,8 +19,10 @@ use App\Models\PanenPengangkutanHasil;
 use App\Http\Requests\HasilPanenRequest;
 use App\Http\Requests\PembiayaanKunjunganRequest;
 use App\Http\Requests\PembiayaanKunjunganUpdateRequest;
+use App\Http\Requests\PembiayaanRabTambahanRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\PengangkutanRequest;
+use App\Http\Requests\PengangkutanUpdateRequest;
 
 class TestController extends Controller
 {
@@ -67,41 +69,16 @@ class TestController extends Controller
         }
     }
 
-    public function agronomisAddRabTambahan()
+    public function agronomisAddRabTambahan(PembiayaanRabTambahanRequest $request)
     {
-        $validator = Validator::make(request()->all(), [
-            'item_rab_id' => 'required',
-            'jumlah' => 'required|numeric|min:1',
-            'harga' => 'required|numeric',
-            'pembiayaan_rab_tambahan_id' => 'required|string',
-            'pembiayaan_id' => 'required|string',
-            'pembiayaan_kunjungan_id' => 'required|string',
-            'pengajuan_id' => 'required|string',
-            'nilai_tambahan' => 'required|numeric',
-            'mdb' => 'required|string',
-            'mdb_name' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
-        }
+        $payload = $request->validated();
+        $payload['pengambilan_st'] = 'no';
+        $payload['mdd'] = Carbon::now();
         try {
-            $result = PembiayaanRabTambahan::create([
-                'item_rab_id' => request('item_rab_id'),
-                'jumlah' => request('jumlah'),
-                'harga' => request('harga'),
-                'pembiayaan_rab_tambahan_id' => request('pembiayaan_rab_tambahan_id'),
-                'pembiayaan_id' => request('pembiayaan_id'),
-                'pembiayaan_kunjungan_id' => request('pembiayaan_kunjungan_id'),
-                'pengajuan_id' => request('pengajuan_id'),
-                'nilai_tambahan' => request('nilai_tambahan'),
-                'pengambilan_st' => 'no',
-                'mdb' => request('mdb'),
-                'mdb_name' => request('mdb_name'),
-                'mdd' => Carbon::now(),
-            ]);
+            $result = PembiayaanRabTambahan::create($payload);
             return ResponseFormatter::success($result, 'Data berhasil diinputkan');
         } catch (Exception $e) {
-            return ResponseFormatter::error(null, $e, 400);
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
     }
 
@@ -126,14 +103,14 @@ class TestController extends Controller
                 'mdd'               => Carbon::now(),
             ]);
         } catch (Exception $e) {
-            return ResponseFormatter::error(null, $e, 400);
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
         try {
             $pembiayaanRabMingguan->update([
                 'pengajuan_id' => $pengajuanID,
             ]);
         } catch (Exception $e) {
-            return ResponseFormatter::error(null, $e, 400);
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
         for ($i = 0; $i < $countSidangKomite; $i++) {
             try {
@@ -148,7 +125,7 @@ class TestController extends Controller
                 ]);
                 array_push($arrTaskPengajuanProcess, $taskPengajuanProcess);
             } catch (Exception $e) {
-                return ResponseFormatter::error(null, $e, 400);
+                return ResponseFormatter::error(null, $e->getMessage(), 400);
             }
         }
         $result = [
@@ -177,7 +154,7 @@ class TestController extends Controller
                 'mdd'               => Carbon::now(),
             ]);
         } catch (Exception $e) {
-            return ResponseFormatter::error(null, $e, 400);
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
         foreach ($pembiayaanRabTambahan as $value) {
             try {
@@ -187,7 +164,7 @@ class TestController extends Controller
                 ]);
                 array_push($arrPembiayaanRabTambahan, $value);
             } catch (Exception $e) {
-                return ResponseFormatter::error(null, $e, 400);
+                return ResponseFormatter::error(null, $e->getMessage(), 400);
             }
         }
         for ($i = 0; $i < $countSidangKomite; $i++) {
@@ -202,7 +179,7 @@ class TestController extends Controller
                 ]);
                 array_push($arrTaskPengajuanProcess, $taskPengajuanProcess);
             } catch (Exception $e) {
-                return ResponseFormatter::error(null, $e, 400);
+                return ResponseFormatter::error(null, $e->getMessage(), 400);
             }
         }
         $result = [
@@ -219,6 +196,22 @@ class TestController extends Controller
         try {
             $result = PanenPengangkutan::create($payload);
             return ResponseFormatter::success($result, 'Data pengangkutan berhasil diinputkan');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
+        }
+    }
+
+    public function updatePengangkutan(PengangkutanUpdateRequest $request, $pengangkutanID)
+    {
+        $pengangkutan = PanenPengangkutan::find($pengangkutanID);
+        if (!$pengangkutan) {
+            return ResponseFormatter::error(null, 'Data pengangkutan tidak ditemukan', 404);
+        }
+        $payload = $request->validated();
+        $payload['pengangkutan_st'] = 'done';
+        try {
+            $pengangkutan->update($payload);
+            return ResponseFormatter::success($pengangkutan, 'Data pengangkutan berhasil diupdate');
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
