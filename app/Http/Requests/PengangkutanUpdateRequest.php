@@ -28,13 +28,15 @@ class PengangkutanUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'pengangkutan_id' => 'required',
-            'truk_nopol' => 'required|string',
-            'supir_id' => 'required|string',
-            // 'pengangkutan_st' => 'required',
-            'jumlah_lahan' => 'required|numeric',
-            'jumlah_karung' => 'required|numeric',
-            'total_berat' => 'required|numeric',
+            'pengangkutan_hasil_id' => 'required',
+            'pengangkutan_id' => 'required',
+            'pembiayaan_id' => 'required',
+            'petani_id' => 'required',
+            'petani_nama' => 'required',
+            'lahan_id' => 'required',
+            'lahan_kd' => 'required',
+            'berat_gkp' => 'required',
+            'karung_gkp' => 'required',
             'mdb' => 'required|string',
             'mdb_name' => 'required|string',
         ];

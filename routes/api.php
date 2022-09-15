@@ -107,7 +107,7 @@ Route::post('/ipangan/agronomis/rab/tambahan', [TestController::class, 'agronomi
 Route::post('/smartfarming/verifikasi_kegiatan/sidangkomite_mingguan/{pembiayaanID}/{pengajuanID}/{prosesTanamID}', [TestController::class, 'postSidangKomite']);
 Route::post('/smartfarming/verifikasi_kegiatan/sidangkomite_tambahan/{pembiayaanID}/{pengajuanID}', [TestController::class, 'postSidangKomiteTambahan']);
 Route::post('/ipangan/supir/add/pengangkutan', [TestController::class, 'insertPengangkutan']);
-Route::post('/ipangan/supir/update/pengangkutan/{pengangkutanID}', [TestController::class, 'updatePengangkutan']);
+Route::post('/ipangan/supir/update/pengangkutan', [TestController::class, 'updatePengangkutan']);
 Route::post('/ipangan/supir/add/hasil/panen', [TestController::class, 'addHasilPanen']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/', [PembiayaanController::class, 'getLahanBysubclusterBysubcluster']);
