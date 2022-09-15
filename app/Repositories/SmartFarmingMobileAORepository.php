@@ -3,10 +3,23 @@
 namespace App\Repositories;
 
 use Carbon\Carbon;
+use App\Models\Rab;
+use App\Models\SmartFarmingMobileAO;
 use App\Interfaces\SmartFarmingMobileAOInterface;
 
 class SmartFarmingMobileAORepository implements SmartFarmingMobileAOInterface
 {
+    const PREFIX_KD_LAHAN = 'L';
+
+    public function generate_id()
+    {
+        list($usec, $sec) = explode(" ", microtime());
+        $microtime = $sec . $usec;
+        $microtime = str_replace(array(',', '.'), array('', ''), $microtime);
+        $microtime = substr_replace($microtime, rand(10000, 99999), -2);
+        return $microtime;
+    }
+
     public function petaniGetDetail($alamat, $files, $result)
     {
         foreach ($alamat as $value) {
@@ -227,5 +240,196 @@ class SmartFarmingMobileAORepository implements SmartFarmingMobileAOInterface
             'harga'        => $item['harga'],
             'jumlah_biaya' => $jumlah_biaya,
         );
+    }
+
+    public function transformsPengajuan($arr_pengajuan)
+    {
+        return array_map(function ($pengajuan) {
+            return $this->transform($pengajuan);
+        }, $arr_pengajuan);
+    }
+
+    public function transformLahan($lahan)
+    {
+        return array(
+            'pembiayaan_lahan_id' => $lahan['pembiayaan_lahan_id'],
+            'pembiayaan_id' => $lahan['pembiayaan_id'],
+            'lahan_id' => $lahan['lahan_id'],
+            'lahan_kd' => $lahan['lahan_kd'],
+            // 'blok_lahan_id' => $lahan['blok_lahan_id'],
+            'nama_pemilik' => $lahan['nama_pemilik'],
+            'luas_lahan' => $lahan['luas_lahan'],
+            'luas_sppt' => $lahan['luas_sppt'],
+            'lahan_st' => $lahan['lahan_st'],
+            'koordinat' => $lahan['koordinat'],
+            // 'geom' => $lahan['geom'],
+            'alamat' => $lahan['alamat'],
+            'rt' => $lahan['rt'],
+            'rw' => $lahan['rw'],
+            'prov_id' => $lahan['prov_id'],
+            'kab_id' => $lahan['kab_id'],
+            'kec_id' => $lahan['kec_id'],
+            'kel_id' => $lahan['kel_id'],
+            'created_by' => $lahan['created_by'],
+            'created_at' => $lahan['created_at'],
+            // 'mdb' => $lahan['mdb'],
+            // 'mdb_name' => $lahan['mdb_name'],
+            // 'mdd' => $lahan['mdd'],
+            'geojson' => $lahan['geojson'],
+            'latitude' => $lahan['latitude'],
+            'longitude' => $lahan['longitude'],
+            'prov_nama' => $lahan['prov_nama'],
+            'kab_nama' => $lahan['kab_nama'],
+            'kec_nama' => $lahan['kec_nama'],
+            'kel_nama' => $lahan['kel_nama'],
+            'varietas_id' => $lahan['varietas_id'],
+            'varietas_nama' => $lahan['varietas_nama'],
+            'komoditas_id' => $lahan['komoditas_id'],
+            'komoditas_nama' => $lahan['komoditas_nama'],
+        );
+    }
+
+    public function transformLahanAnother($result)
+    {
+        $data = array();
+        foreach ($result as $key => $lahan) {
+            $lahan_id  = isset($lahan->lahan_id) ? $lahan->lahan_id : $lahan->petak_lahan_id;
+            $lahan_st  = isset($lahan->lahan_st) ? $lahan->lahan_st : $lahan->status_kepemilikan;
+            $lahan_exists = isset($lahan->exists) ? $lahan->lahan_exists : null;
+            $arrData = array(
+                'lahan_id'        => $lahan_id,
+                'lahan_kd'        => isset($lahan->lahan_kd) ? $lahan->lahan_kd : null,
+                'blok_lahan_id'   => isset($lahan->blok_lahan_id) ? $lahan->blok_lahan_id : null,
+                'nama_pemilik'    => strtoupper($lahan->nama_pemilik),
+                'luas_lahan'      => $lahan->luas_lahan,
+                'luas_sppt'       => $lahan->luas_sppt,
+                'lahan_st'        => $lahan_st,
+                'lahan_exists'    => $lahan_exists,
+                // 'koordinat'       => $lahan->koordinat,
+                'latitude'        => $lahan->latitude,
+                'longitude'       => $lahan->longitude,
+                'geojson'         => $lahan->geojson,
+                // 'geom'            => $lahan->geom,
+                'alamat'          => strtoupper($lahan->alamat),
+                'rt'              => isset($lahan->rt) ? $lahan->rt : null,
+                'rw'              => isset($lahan->rw) ? $lahan->rw : null,
+                'prov_id'         => $lahan->prov_id,
+                'kab_id'          => $lahan->kab_id,
+                'kec_id'          => $lahan->kec_id,
+                'kel_id'          => $lahan->kel_id,
+                'active_st'       => isset($lahan->active_st) ? $lahan->active_st : null,
+                'created_by'      => isset($lahan->created_by) ? $lahan->created_by : null,
+                'created_at'      => isset($lahan->created_at) ? $lahan->created_at : null,
+                'blok_lahan_kd'   => isset($lahan->blok_lahan_kd) ? $lahan->blok_lahan_kd : null,
+                'blok_lahan_nama' => isset($lahan->blok_lahan_nama) ? $lahan->blok_lahan_nama : null,
+                'kelompok_kd'     => isset($lahan->kelompok_kd) ? $lahan->kelompok_kd : null,
+                'kelompok_nama'   => isset($lahan->kelompok_nama) ? $lahan->kelompok_nama : null,
+                'ketua_kelompok'  => isset($lahan->ketua_kelompok) ? $lahan->ketua_kelompok : null,
+                'prov_nama'       => isset($lahan->prov_nama) ? $lahan->prov_nama : null,
+                'kab_nama'        => isset($lahan->kab_nama) ? $lahan->kab_nama : null,
+                'kec_nama'        => isset($lahan->kec_nama) ? $lahan->kec_nama : null,
+                'kel_nama'        => isset($lahan->kel_nama) ? $lahan->kel_nama : null,
+            );
+            array_push($data, $arrData);
+        }
+        return $data;
+    }
+
+    public function transformVarietas($result)
+    {
+        $data = array();
+        foreach ($result as $key => $varietas) {
+            $arrData = array(
+                'varietas_id'   => $varietas->varietas_id,
+                'varietas_nama' => $varietas->varietas_nama,
+            );
+            array_push($data, $arrData);
+        }
+        return $data;
+    }
+
+    public function calculateRab($luas_lahan)
+    {
+        $rabs = Rab::where('active_st', 'yes')->orderBy('nama_rab', 'asc')->get()->toArray();
+        $satu_hektar = 10000;
+        //default
+        $paket_terkecil = 1500;
+        foreach ($rabs as $key => $rab) {
+            // $break = false;
+            $rab['nilai_pembiayaan'] = 0;
+            $current_luas_lahan = $satu_hektar;
+            if ($luas_lahan < $paket_terkecil) {
+                $current_luas_lahan = $paket_terkecil;
+                // $break = true;
+            } else if ($luas_lahan < $satu_hektar) {
+                $tmp_current_luas_lahan = $luas_lahan / 500;
+                $current_luas_lahan = 500 * (ceil($tmp_current_luas_lahan));
+                // $break = true;
+            }
+            $rabMingguan = SmartFarmingMobileAO::GetDetailRabMingguan($rab['rab_id'], $current_luas_lahan);
+            // merubah collection object menjadi array
+            $arr_rab_mingguan = array_map(function ($value) {
+                return (array)$value;
+            }, $rabMingguan);
+            foreach ($arr_rab_mingguan as  $rab_mingguan) {
+                // array item
+                $rab['item'][$rab_mingguan['item_rab_id']]['item_rab_id']  = $rab_mingguan['item_rab_id'];
+                $rab['item'][$rab_mingguan['item_rab_id']]['nama_item']    = $rab_mingguan['nama_item'];
+                $rab['item'][$rab_mingguan['item_rab_id']]['harga']        = $rab_mingguan['harga'];
+                $rab['item'][$rab_mingguan['item_rab_id']]['satuan']       = $rab_mingguan['satuan'];
+                if (isset($rab['item'][$rab_mingguan['item_rab_id']]['jumlah'])) {
+                    $rab['item'][$rab_mingguan['item_rab_id']]['jumlah']  += $rab_mingguan['jumlah'];
+                } else {
+                    $rab['item'][$rab_mingguan['item_rab_id']]['jumlah']  = $rab_mingguan['jumlah'];
+                }
+                // nilai pembiayaan
+                $rab['nilai_pembiayaan'] += ($rab_mingguan['jumlah'] * $rab_mingguan['harga']);
+                // kegiatan mingguan
+                $key = $rab_mingguan['proses_tanam_id'] . $rab_mingguan['item_rab_id'];
+                $rab['kegiatan_mingguan'][$key]['rab_detail_mingguan_id'] = $rab_mingguan['rab_detail_mingguan_id'];
+                $rab['kegiatan_mingguan'][$key]['proses_tanam_id']        = $rab_mingguan['proses_tanam_id'];
+                $rab['kegiatan_mingguan'][$key]['proses_tanam_nama']      = $rab_mingguan['proses_tanam_nama'];
+                $rab['kegiatan_mingguan'][$key]['item_rab_id']            = $rab_mingguan['item_rab_id'];
+                $rab['kegiatan_mingguan'][$key]['nama_item']              = $rab_mingguan['nama_item'];
+                $rab['kegiatan_mingguan'][$key]['harga']                  = $rab_mingguan['harga'];
+                $rab['kegiatan_mingguan'][$key]['satuan']                 = $rab_mingguan['satuan'];
+                $rab['kegiatan_mingguan'][$key]['sort']                   = $rab_mingguan['sort'];
+                if (isset($rab['kegiatan_mingguan'][$key]['jumlah'])) {
+                    $rab['kegiatan_mingguan'][$key]['jumlah'] += $rab_mingguan['jumlah'];
+                } else {
+                    $rab['kegiatan_mingguan'][$key]['jumlah'] = $rab_mingguan['jumlah'];
+                }
+            }
+            usort($rab['kegiatan_mingguan'], function ($a, $b) {
+                if ($a['sort'] == $b['sort']) {
+                    return $a['rab_detail_mingguan_id'] - $b['rab_detail_mingguan_id'];
+                }
+                return $a['sort'] - $b['sort'];
+            });
+            $rab['item'] = array_values($rab['item']);
+            $rab['kegiatan_mingguan'] = array_values($rab['kegiatan_mingguan']);
+            return $rab;
+        }
+    }
+
+    public function postLahan($payload)
+    {
+        $lahan_ref_id = 'REF' . $this->generate_id();
+        $subcluster = SmartFarmingMobileAO::GetMasterSubclusterByID($payload['subcluster_id']);
+        $prefix = self::PREFIX_KD_LAHAN . $subcluster[0]->prov_id . $subcluster[0]->cluster_kd . $subcluster[0]->subcluster_kd;
+        $payload['lahan_id'] = $this->generate_id();
+        $payload['lahan_ref_id'] = $lahan_ref_id;
+        $payload['lahan_kd'] = SmartFarmingMobileAO::GenerateKD($prefix);
+        $payload['active_st'] = 'yes';
+        $payload['created_by'] = $payload['user_id'];
+        $payload['created_at'] = now();
+        $payload['mdd'] = now();
+        $payload['mdb'] = $payload['user_id'];
+        $payload['mdb_name'] = $payload['nama_lengkap'];
+        $payload['validasi_at'] = now();
+        $payload['validasi_by'] = $payload['user_id'];
+        $payload['validasi_by_name'] = $payload['nama_lengkap'];
+        $result = SmartFarmingMobileAO::InsertLahan($payload);
+        return $result;
     }
 }
