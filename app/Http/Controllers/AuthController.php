@@ -52,7 +52,7 @@ class AuthController extends Controller
                     WHERE b.user_id = :user_id", [
                     'user_id' => $user->user_id,
                 ]))->first();
-            } elseif ($user->com_role_user_sf()->first()->role_id == '02001') {
+            } elseif ($user->com_role_user_sf()->first()->role_id == '02001' || $user->com_role_user_sf()->first()->role_id == '02015') {
                 // $data = collect(DB::connection('mysql_second')->select("SELECT c.pendamping_kd, d.cluster_nama, e.subcluster_nama
                 $data = collect(DB::connection('mysql_second')->select("SELECT c.pendamping_kd
                     FROM com_user_pendamping b
