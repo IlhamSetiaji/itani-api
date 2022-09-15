@@ -37,7 +37,7 @@ class TestController extends Controller
         $this->taskPengajuanProcessRepository = $taskPengajuanProcessRepository;
     }
 
-    private function generate_id()
+    public function generate_id()
     {
         list($usec, $sec) = explode(" ", microtime());
         $microtime = $sec . $usec;
