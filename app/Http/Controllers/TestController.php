@@ -17,15 +17,26 @@ use App\Models\PembiayaanRabMingguan;
 use App\Models\PembiayaanRabTambahan;
 use App\Models\PanenPengangkutanHasil;
 use App\Http\Requests\HasilPanenRequest;
-use App\Http\Requests\PembiayaanKunjunganRequest;
-use App\Http\Requests\PembiayaanKunjunganUpdateRequest;
-use App\Http\Requests\PembiayaanRabTambahanRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\PengangkutanRequest;
+use App\Repositories\TaskPengajuanRepository;
 use App\Http\Requests\PengangkutanUpdateRequest;
+use App\Http\Requests\PembiayaanKunjunganRequest;
+use App\Http\Requests\PembiayaanRabTambahanRequest;
+use App\Repositories\TaskPengajuanProcessRepository;
+use App\Http\Requests\PembiayaanKunjunganUpdateRequest;
 
 class TestController extends Controller
 {
+    private TaskPengajuanRepository $taskPengajuanRepository;
+    private TaskPengajuanProcessRepository $taskPengajuanProcessRepository;
+
+    public function __construct(TaskPengajuanRepository $taskPengajuanRepository, TaskPengajuanProcessRepository $taskPengajuanProcessRepository)
+    {
+        $this->taskPengajuanRepository = $taskPengajuanRepository;
+        $this->taskPengajuanProcessRepository = $taskPengajuanProcessRepository;
+    }
+
     private function generate_id()
     {
         list($usec, $sec) = explode(" ", microtime());
@@ -85,7 +96,6 @@ class TestController extends Controller
     public function postSidangKomite($pembiayaanID, $pengajuanID, $prosesTanamID)
     {
         $countSidangKomite = DB::table('com_user_sidangkomite')->count();
-        // $pembiayaanRabMingguan = PembiayaanRabMingguan::with('pembiayaan_rab')->where('pembiayaan_rab_mingguan.proses_tanam_id', $prosesTanamID)->where('pembiayaan_rab.pembiayaan_id', $pembiayaanID)->first();
         $pembiayaanRabMingguan = PembiayaanRabMingguan::where('proses_tanam_id', $prosesTanamID)
             ->with('pembiayaan_rab', function ($query) use ($pembiayaanID) {
                 $query->where('pembiayaan_id', $pembiayaanID);
@@ -95,13 +105,7 @@ class TestController extends Controller
         }
         $arrTaskPengajuanProcess = array();
         try {
-            $TaskPengajuan = TaskPengajuan::create([
-                'pengajuan_id'      => $pengajuanID,
-                'kode_group'        => '03',
-                // 'mdb'               => $this->com_user['user_id'],
-                // 'mdb_name'          => $this->com_user['nama_lengkap'],
-                'mdd'               => Carbon::now(),
-            ]);
+            $TaskPengajuan = $this->taskPengajuanRepository->create($pengajuanID);
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
@@ -114,15 +118,7 @@ class TestController extends Controller
         }
         for ($i = 0; $i < $countSidangKomite; $i++) {
             try {
-                $taskPengajuanProcess = TaskPengajuanProcess::create([
-                    'process_id'        => $this->generate_id(),
-                    'flow_id'           => '0301',
-                    'flow_prev_id'      => '0204',
-                    'pengajuan_id'      => $pengajuanID,
-                    // 'mdb'               => $this->com_user['user_id'],
-                    // 'mdb_name'          => $this->com_user['nama_lengkap'],
-                    'mdd'               => Carbon::now(),
-                ]);
+                $taskPengajuanProcess = $this->taskPengajuanProcessRepository->create($pengajuanID);
                 array_push($arrTaskPengajuanProcess, $taskPengajuanProcess);
             } catch (Exception $e) {
                 return ResponseFormatter::error(null, $e->getMessage(), 400);
@@ -146,13 +142,7 @@ class TestController extends Controller
         $arrTaskPengajuanProcess = array();
         $arrPembiayaanRabTambahan = array();
         try {
-            $TaskPengajuan = TaskPengajuan::create([
-                'pengajuan_id'      => $pengajuanID,
-                'kode_group'        => '03',
-                // 'mdb'               => $this->com_user['user_id'],
-                // 'mdb_name'          => $this->com_user['nama_lengkap'],
-                'mdd'               => Carbon::now(),
-            ]);
+            $TaskPengajuan = $this->taskPengajuanRepository->create($pengajuanID);
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
@@ -169,14 +159,7 @@ class TestController extends Controller
         }
         for ($i = 0; $i < $countSidangKomite; $i++) {
             try {
-                $taskPengajuanProcess = TaskPengajuanProcess::create([
-                    'process_id'        => $this->generate_id(),
-                    'flow_id'           => '0301',
-                    'pengajuan_id'      => $pengajuanID,
-                    // 'mdb'               => $this->com_user['user_id'],
-                    // 'mdb_name'          => $this->com_user['nama_lengkap'],
-                    'mdd'               => Carbon::now(),
-                ]);
+                $taskPengajuanProcess = $this->taskPengajuanProcessRepository->createSecond($pengajuanID);
                 array_push($arrTaskPengajuanProcess, $taskPengajuanProcess);
             } catch (Exception $e) {
                 return ResponseFormatter::error(null, $e->getMessage(), 400);
