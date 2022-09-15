@@ -25,6 +25,7 @@ use App\Http\Requests\PembiayaanKunjunganRequest;
 use App\Http\Requests\PembiayaanRabTambahanRequest;
 use App\Repositories\TaskPengajuanProcessRepository;
 use App\Http\Requests\PembiayaanKunjunganUpdateRequest;
+use App\Models\PanenPenimbanganHasil;
 
 class TestController extends Controller
 {
@@ -186,14 +187,14 @@ class TestController extends Controller
 
     public function updatePengangkutan(PengangkutanUpdateRequest $request)
     {
-        $pengangkutan = PanenPengangkutanHasil::find(request('pengangkutan_hasil_id'));
-        if (!$pengangkutan) {
-            return ResponseFormatter::error(null, 'Data pengangkutan tidak ditemukan', 404);
-        }
+        // $pengangkutan = PanenPengangkutanHasil::find(request('pengangkutan_hasil_id'));
+        // if (!$pengangkutan) {
+        //     return ResponseFormatter::error(null, 'Data pengangkutan tidak ditemukan', 404);
+        // }
         $payload = $request->validated();
         // $payload['pengangkutan_st'] = 'done';
         try {
-            $pengangkutan->update($payload);
+            $pengangkutan = PanenPengangkutanHasil::create($payload);
             return ResponseFormatter::success($pengangkutan, 'Data pengangkutan berhasil diupdate');
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
