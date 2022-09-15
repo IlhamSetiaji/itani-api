@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use LDAP\Result;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Petani;
 use App\Models\ComUser;
@@ -17,15 +19,19 @@ use App\Models\PembiayaanPetani;
 use App\Models\MasterProsesTanam;
 use App\Helpers\ResponseFormatter;
 use App\Models\PembiayaanRabMingguan;
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\PostPesanSaprodiRequest;
+use App\Repositories\PembiayaanRabMingguanRepository;
+use App\Http\Requests\PostPembiayaanTenagaKerjaRequest;
 
 class AccountOfficerController extends Controller
 {
-    public function __construct()
+    private PembiayaanRabMingguanRepository $pembiayaanRabMingguanRepository;
+
+    public function __construct(PembiayaanRabMingguanRepository $pembiayaanRabMingguanRepository)
     {
         $this->middleware('ao');
+        $this->pembiayaanRabMingguanRepository = $pembiayaanRabMingguanRepository;
     }
 
     public function aoGetMonitoringPelaksanaan($petaniID)
@@ -244,27 +250,16 @@ class AccountOfficerController extends Controller
         return ResponseFormatter::success($result, 'Data rencana kegiatan berhasil didapatkan');
     }
 
-    public function aoPostPesanSaprodi()
+    public function aoPostPesanSaprodi(PostPesanSaprodiRequest $request)
     {
-        $validator = Validator::make(request()->all(), [
-            'app_id' => 'required|numeric',
-            'petani_id' => 'required|numeric',
-            'pesan_judul' => 'required|string',
-            'pesan_isi' => 'required|string',
-            'pesan_status' => 'required|string',
-            'pesan_kategori' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
+        $payload = $request->validated();
+        unset($payload['app_id']);
+        try {
+            $pesan = PesanNotifikasi::create($payload);
+            return ResponseFormatter::success($pesan, 'Data pesan berhasil ditambahkan');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
-        $pesan = PesanNotifikasi::create([
-            'petani_id' => request('petani_id'),
-            'pesan_judul' => request('pesan_judul'),
-            'pesan_isi' => request('pesan_isi'),
-            'pesan_status' => request('pesan_status'),
-            'pesan_kategori' => request('pesan_kategori'),
-        ]);
-        return ResponseFormatter::success($pesan, 'Data pesan berhasil ditambahkan');
     }
 
     public function aoGetDataKios($pembiayaanID, $prosesTanamID)
@@ -288,26 +283,15 @@ class AccountOfficerController extends Controller
         return ResponseFormatter::success($result, 'Data kios berhasil didapatkan');
     }
 
-    public function aoPostPembiayaanTenagaKerja()
+    public function aoPostPembiayaanTenagaKerja(PostPembiayaanTenagaKerjaRequest $request)
     {
-        $validator = Validator::make(request()->all(), [
-            'pembiayaan_rab_id' => 'required|numeric',
-            'pembiayaan_id' => 'required|numeric',
-            'item_rab_id' => 'required|numeric',
-            'jumlah' => 'required|numeric|min:1',
-            'harga' => 'required|numeric|min:1',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
+        $payload = $request->validated();
+        try {
+            $pembiayaanRab = PembiayaanRab::create($payload);
+            return ResponseFormatter::success($pembiayaanRab, 'Data pembiayaan rab berhasil ditambahkan');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
-        $pembiayaanRab = PembiayaanRab::create([
-            'pembiayaan_rab_id' => request('pembiayaan_rab_id'),
-            'pembiayaan_id' => request('pembiayaan_id'),
-            'item_rab_id' => request('item_rab_id'),
-            'jumlah' => request('jumlah'),
-            'harga' => request('harga'),
-        ]);
-        return ResponseFormatter::success($pembiayaanRab, 'Data pembiayaan rab berhasil ditambahkan');
     }
 
     public function aoGetKesiapanSaprodi($pembiayaanID, $prosesTanamID)
@@ -477,18 +461,10 @@ class AccountOfficerController extends Controller
             return ResponseFormatter::error(null, 'Data Rab Mingguan tidak ditemukan', 404);
         }
         try {
-            foreach ($pembiayaanRabMingguan as $key => $value) {
-                $value->update([
-                    "kesiapan_kegiatan_st" => 'yes',
-                    "rencana_kegiatan_st" => "process",
-                    "kesiapan_kegiatan_date" => Carbon::now(),
-                    "rencana_kegiatan_st_date" => Carbon::now(),
-                    "catatan_lahan" => request('catatan_lahan'),
-                ]);
-            }
+            $this->pembiayaanRabMingguanRepository->update($pembiayaanRabMingguan);
             return ResponseFormatter::success($pembiayaanRabMingguan, 'Data berhasil diupdate');
         } catch (Exception $e) {
-            return ResponseFormatter::error(null, $e, 400);
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
     }
 }
