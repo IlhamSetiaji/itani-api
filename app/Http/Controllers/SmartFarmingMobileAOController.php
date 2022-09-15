@@ -61,15 +61,6 @@ class SmartFarmingMobileAOController extends Controller
         return $this->rupiah(round($number / 10000, 2), 2);
     }
 
-    private function generate_id()
-    {
-        list($usec, $sec) = explode(" ", microtime());
-        $microtime = $sec . $usec;
-        $microtime = str_replace(array(',', '.'), array('', ''), $microtime);
-        $microtime = substr_replace($microtime, rand(10000, 99999), -2);
-        return $microtime;
-    }
-
     public function summaryGet($subClusterID)
     {
         $subCluster = PendataanPetani::where('subcluster_id', $subClusterID);
