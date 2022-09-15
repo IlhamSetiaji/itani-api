@@ -299,15 +299,31 @@ class Petani extends Model
     public function scopePetaniPengambilanSaprodiTambahanAll($query, $petaniID, $pembiayaanID)
     {
         $query = DB::connection('mysql')->select("SELECT
-        a.item_rab_id,
-        d.nama_item,
-        a.jumlah,
-        d.satuan
-        FROM pembiayaan_rab_tambahan a
-        JOIN pembiayaan_kunjungan b ON a.pembiayaan_kunjungan_id = b.pembiayaan_kunjungan_id
-        JOIN pembiayaan c ON c.pembiayaan_id = b.pembiayaan_id
-        JOIN master_item_rab d ON a.item_rab_id = d.item_rab_id
-        where a.pembiayaan_rab_tambahan_id =:pembiayaan_rab_tambahan_id", [
+            a.pembiayaan_rab_tambahan_id,
+            a.pembiayaan_kunjungan_id,
+            a.pengambilan_st,
+            b.pembiayaan_id,
+            d.petani_id,
+            d.nama_lengkap,
+            e.lahan_id,
+            g.alamat,
+            b.kios_id,
+            b.kios_nama,
+            a.item_rab_id,
+            f.nama_item,
+            a.jumlah,
+            f.satuan,
+            a.nilai_tambahan
+
+            FROM pembiayaan_rab_tambahan a
+            LEFT JOIN pembiayaan b ON a.pembiayaan_id = b.pembiayaan_id
+            LEFT JOIN pembiayaan_rab c ON b.pembiayaan_id = c.pembiayaan_id
+            LEFT JOIN pembiayaan_petani d ON d.pembiayaan_id = b.pembiayaan_id
+            LEFT JOIN pembiayaan_lahan e ON e.pembiayaan_id = b.pembiayaan_id
+            LEFT JOIN master_item_rab f ON f.item_rab_id = a.item_rab_id
+            JOIN master_kios g ON b.kios_id = g.kios_id
+            WHERE  d.petani_id =:petani_id AND a.pembiayaan_id =:pembiayaan_id
+            GROUP BY a.pembiayaan_rab_tambahan_id", [
             "petani_id" => $petaniID,
             "pembiayaan_id" => $pembiayaanID
         ]);
