@@ -184,14 +184,14 @@ class TestController extends Controller
         }
     }
 
-    public function updatePengangkutan(PengangkutanUpdateRequest $request, $pengangkutanID)
+    public function updatePengangkutan(PengangkutanUpdateRequest $request)
     {
-        $pengangkutan = PanenPengangkutan::find($pengangkutanID);
+        $pengangkutan = PanenPengangkutanHasil::find(request('pengangkutan_hasil_id'));
         if (!$pengangkutan) {
             return ResponseFormatter::error(null, 'Data pengangkutan tidak ditemukan', 404);
         }
         $payload = $request->validated();
-        $payload['pengangkutan_st'] = 'done';
+        // $payload['pengangkutan_st'] = 'done';
         try {
             $pengangkutan->update($payload);
             return ResponseFormatter::success($pengangkutan, 'Data pengangkutan berhasil diupdate');
