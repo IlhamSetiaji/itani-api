@@ -21,6 +21,10 @@ use App\Models\MasterHargaGabah;
 use App\Models\PembiayaanPetani;
 use App\Models\MasterProsesTanam;
 use App\Helpers\ResponseFormatter;
+use App\Http\Requests\PembiayaanFotoKegiatanPetaniRequest;
+use App\Http\Requests\PembiayaanFotoRekomendasiRequest;
+use App\Http\Requests\PembiayaanKunjunganFileRequest;
+use App\Http\Requests\PembiayaanRabRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\PembiayaanKunjungan;
 use App\Models\MasterRekeningPetani;
@@ -31,12 +35,16 @@ use App\Models\PembiayaanKunjunganFile;
 use App\Models\PembiayaanFotoRekomendasi;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PembiayaanFotoKegiatanPetani;
+use App\Repositories\PetaniRepository;
 
 class PetaniController extends Controller
 {
-    public function __construct()
+    private PetaniRepository $petaniRepository;
+
+    public function __construct(PetaniRepository $petaniRepository)
     {
         /*   $this->middleware('petani'); */
+        $this->petaniRepository = $petaniRepository;
     }
 
     public function petaniGetRealisasiKegiatan($pembiayaanID)
@@ -208,64 +216,30 @@ class PetaniController extends Controller
         return ResponseFormatter::success($result, 'Data foto kegiatan didapatkan');
     }
 
-    public function petaniAddFotoRekomendasi()
+    public function petaniAddFotoRekomendasi(PembiayaanFotoRekomendasiRequest $request)
     {
         $user = request()->user();
-        $validator = Validator::make(request()->all(), [
-            'pembiayaan_foto_rekomendasi_id' => 'required|numeric',
-            'pembiayaan_kunjungan_id' => 'required|string',
-            'pembiayaan_id' => 'required|numeric',
-            'jenis_kunjungan' => 'required|string',
-            'jenis_foto' => 'required|string',
-            'file_path' => 'required|string',
-            'file_name' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
-        }
+        $payload = $request->validated();
+        $payload['mdb'] = $user->user_id;
+        $payload['mdb_name'] = $user->user_name;
+        $payload['mdd'] = Carbon::now();
         try {
-            $result = PembiayaanFotoRekomendasi::create([
-                'pembiayaan_foto_rekomendasi_id' => request('pembiayaan_foto_rekomendasi_id'),
-                'pembiayaan_kunjungan_id' => request('pembiayaan_kunjungan_id'),
-                'pembiayaan_id' => request('pembiayaan_id'),
-                'jenis_kunjungan' => request('jenis_kunjungan'),
-                'jenis_foto' => request('jenis_foto'),
-                'file_path' => request('file_path'),
-                'file_name' => request('file_name'),
-                'mdb' => $user->user_id,
-                'mdb_name' => $user->user_name,
-                'mdd' => Carbon::now(),
-            ]);
+            $result = PembiayaanFotoRekomendasi::create($payload);
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), '400');
         }
         return ResponseFormatter::success($result, 'Data foto rekomendasi berhasil ditambahkan');
     }
 
-    public function petaniAddFotoKonfirmasiKegiatan()
+    public function petaniAddFotoKonfirmasiKegiatan(PembiayaanFotoKegiatanPetaniRequest $request)
     {
         $user = request()->user();
-        $validator = Validator::make(request()->all(), [
-            'pembiayaan_foto_kegiatan_id' => 'required|numeric',
-            'proses_tanam_id' => 'required|numeric',
-            'pembiayaan_id' => 'required|numeric',
-            'file_path' => 'required|string',
-            'file_name' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
-        }
+        $payload = $request->validated();
+        $payload['mdb'] = $user->user_id;
+        $payload['mdb_name'] = $user->user_name;
+        $payload['mdd'] = Carbon::now();
         try {
-            $result = PembiayaanFotoKegiatanPetani::create([
-                'pembiayaan_foto_kegiatan_id' => request('pembiayaan_foto_kegiatan_id'),
-                'proses_tanam_id' => request('proses_tanam_id'),
-                'pembiayaan_id' => request('pembiayaan_id'),
-                'file_path' => request('file_path'),
-                'file_name' => request('file_name'),
-                'mdb' => $user->user_id,
-                'mdb_name' => $user->user_name,
-                'mdd' => Carbon::now(),
-            ]);
+            $result = PembiayaanFotoKegiatanPetani::create($payload);
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), '400');
         }
@@ -409,28 +383,15 @@ class PetaniController extends Controller
         return ResponseFormatter::success($result, 'Data berhasil didapatkan');
     }
 
-    public function petaniAddImageLahan()
+    public function petaniAddImageLahan(PembiayaanKunjunganFileRequest $request)
     {
         $user = request()->user();
-        $validator = Validator::make(request()->all(), [
-            'file_id' => 'required|numeric',
-            'pembiayaan_kunjungan_id' => 'required|string',
-            'file_path' => 'required|string',
-            'file_img' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
-        }
+        $payload = $request->validated();
+        $payload['mdb'] = $user->user_id;
+        $payload['mdb_name'] = $user->user_name;
+        $payload['mdd'] = Carbon::now();
         try {
-            $result = PembiayaanKunjunganFile::create([
-                'file_id' => request('file_id'),
-                'pembiayaan_kunjungan_id' => request('pembiayaan_kunjungan_id'),
-                'file_path' => request('file_path'),
-                'file_img' => request('file_img'),
-                'mdb' => $user->user_id,
-                'mdb_name' => $user->user_name,
-                'mdd' => Carbon::now(),
-            ]);
+            $result = PembiayaanKunjunganFile::create($payload);
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), '400');
         }
@@ -641,26 +602,11 @@ class PetaniController extends Controller
         return ResponseFormatter::success($result, 'Data berhasil didapatkan');
     }
 
-    public function aoPostPembiayaanTenagaKerja()
+    public function aoPostPembiayaanTenagaKerja(PembiayaanRabRequest $request)
     {
-        $validator = Validator::make(request()->all(), [
-            'pembiayaan_rab_id' => 'required|numeric',
-            'pembiayaan_id' => 'required|numeric',
-            'item_rab_id' => 'required|numeric',
-            'jumlah' => 'required|numeric|min:0',
-            'harga' => 'required|numeric|min:0',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
-        }
+        $payload = $request->validated();
         try {
-            $result = PembiayaanRab::create([
-                'pembiayaan_rab_id' => request('pembiayaan_rab_id'),
-                'pembiayaan_id' => request('pembiayaan_id'),
-                'item_rab_id' => request('item_rab_id'),
-                'jumlah' => request('jumlah'),
-                'harga' => request('harga'),
-            ]);
+            $result = PembiayaanRab::create($payload);
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), '400');
         }
@@ -726,90 +672,16 @@ class PetaniController extends Controller
     {
         $data = Petani::PetaniPengambilanSaprodiAll($petaniID, $pembiayaanID);
         $dataPetani = Petani::GetItemRabByPetaniPembiayaan($petaniID, $pembiayaanID);
-        $result = array();
-        foreach ($data as $key => $value) {
-            $temp_data = array(
-                'pembiayaan_id' => $value->pembiayaan_id,
-                'proses_tanam_desc' => $value->proses_tanam_desc,
-                'proses_tanam_nama' => $value->proses_tanam_nama,
-                'periode_kegiatan_start' => $value->periode_kegiatan_start,
-                'periode_kegiatan_end' => $value->periode_kegiatan_end,
-                'lahan_id' => $value->lahan_id,
-                'kesiapan_kegiatan_st' => $value->kesiapan_kegiatan_st,
-                'kios_nama' => $value->kios_nama,
-                'alamat' => $value->alamat,
-                'item' => array(),
-            );
-            array_push($result, $temp_data);
-            foreach ($dataPetani as $k => $d) {
-                if ($value->proses_tanam_nama == $d->proses_tanam_nama) {
-                    $arr_item = array(
-                        'nama_item' => $d->nama_item,
-                        'jumlah' => $d->jumlah,
-                        'pengambilan_st' => $d->pengambilan_st,
-                        'kesiapan_stok_st' => $d->kesiapan_stok_st,
-                    );
-                    array_push($result[$key]['item'], $arr_item);
-                }
-            }
-        }
+        $result = $this->petaniRepository->pengambilanSaprodiAll($data, $dataPetani);
         return ResponseFormatter::success($result, 'Data berhasil didapatkan');
-        // $result = array();
-
-        // if (sizeof($result) == 0) {
-        //     return response()->json([
-        //         'data' => null,
-        //         'status' => 204,
-        //         'message' => 'Data Kosong',
-        //     ]);
-        // }
-
-
     }
 
     public function petaniPengambilanSaprodiGrup2($petaniID, $pembiayaanID)
     {
         $data = Petani::PetaniPengambilanSaprodiAll($petaniID, $pembiayaanID);
         $dataPetani = Petani::GetItemRabByGrub2PetaniPembiayaan($petaniID, $pembiayaanID);
-        $result = array();
-        foreach ($data as $key => $value) {
-            $temp_data = array(
-                'pembiayaan_id' => $value->pembiayaan_id,
-                'proses_tanam_desc' => $value->proses_tanam_desc,
-                'proses_tanam_nama' => $value->proses_tanam_nama,
-                'periode_kegiatan_start' => $value->periode_kegiatan_start,
-                'periode_kegiatan_end' => $value->periode_kegiatan_end,
-                'lahan_id' => $value->lahan_id,
-                'kesiapan_kegiatan_st' => $value->kesiapan_kegiatan_st,
-                'kios_nama' => $value->kios_nama,
-                'alamat' => $value->alamat,
-                'item' => array(),
-            );
-            array_push($result, $temp_data);
-            foreach ($dataPetani as $k => $d) {
-                if ($value->proses_tanam_nama == $d->proses_tanam_nama) {
-                    $arr_item = array(
-                        'pembiayaan_rab_mingguan_id' => $d->pembiayaan_rab_mingguan_id,
-                        'nama_item' => $d->nama_item,
-                        'jumlah' => $d->jumlah,
-                        'pengambilan_st' => $d->pengambilan_st,
-                        'kesiapan_stok_st' => $d->kesiapan_stok_st,
-                    );
-                    array_push($result[$key]['item'], $arr_item);
-                }
-            }
-        }
+        $result = $this->petaniRepository->pengambilanSaprodiGrup2($data, $dataPetani);
         return ResponseFormatter::success($result, 'Data berhasil didapatkan');
-        // $result = array();
-
-        // if (sizeof($result) == 0) {
-        //     return response()->json([
-        //         'data' => null,
-        //         'status' => 204,
-        //         'message' => 'Data Kosong',
-        //     ]);
-        // }
-
     }
 
 
@@ -817,45 +689,8 @@ class PetaniController extends Controller
     {
         $data = Petani::PetaniPengambilanSaprodiAll($petaniID, $pembiayaanID);
         $dataPetani = Petani::GetItemRabByGrub3PetaniPembiayaan($petaniID, $pembiayaanID);
-        $result = array();
-        foreach ($data as $key => $value) {
-            $temp_data = array(
-                'pembiayaan_id' => $value->pembiayaan_id,
-                'proses_tanam_desc' => $value->proses_tanam_desc,
-                'proses_tanam_nama' => $value->proses_tanam_nama,
-                'periode_kegiatan_start' => $value->periode_kegiatan_start,
-                'periode_kegiatan_end' => $value->periode_kegiatan_end,
-                'lahan_id' => $value->lahan_id,
-                'kesiapan_kegiatan_st' => $value->kesiapan_kegiatan_st,
-                'kios_nama' => $value->kios_nama,
-                'alamat' => $value->alamat,
-                'item' => array(),
-            );
-            array_push($result, $temp_data);
-            foreach ($dataPetani as $k => $d) {
-                if ($value->proses_tanam_nama == $d->proses_tanam_nama) {
-                    $arr_item = array(
-                        'pembiayaan_rab_mingguan_id' => $d->pembiayaan_rab_mingguan_id,
-                        'nama_item' => $d->nama_item,
-                        'jumlah' => $d->jumlah,
-                        'pengambilan_st' => $d->pengambilan_st,
-                        'kesiapan_stok_st' => $d->kesiapan_stok_st,
-                    );
-                    array_push($result[$key]['item'], $arr_item);
-                }
-            }
-        }
+        $result = $this->petaniRepository->pengambilanSaprodiGrup3($data, $dataPetani);
         return ResponseFormatter::success($result, 'Data berhasil didapatkan');
-        // $result = array();
-
-        // if (sizeof($result) == 0) {
-        //     return response()->json([
-        //         'data' => null,
-        //         'status' => 204,
-        //         'message' => 'Data Kosong',
-        //     ]);
-        // }
-
     }
 
 
