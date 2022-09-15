@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pembiayaan;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
+use App\Http\Requests\UpdateDanaCadanganRequest;
 use App\Models\Agronomis;
 use App\Models\ComUser;
 use App\Models\MasterCekaman;
@@ -17,7 +18,9 @@ use App\Models\PembiayaanFotoRekomendasi;
 use App\Models\PembiayaanKunjunganFile;
 use App\Models\PembiayaanRab;
 use App\Models\Pendamping;
+use App\Repositories\PembiayaanRabRepository;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,6 +30,12 @@ class AgronomisController extends Controller
     // {
     //     $this->middleware('agronomis');
     // }
+    private PembiayaanRabRepository $pembiayaanRabRepository;
+
+    public function __construct(PembiayaanRabRepository $pembiayaanRabRepository)
+    {
+        $this->pembiayaanRabRepository = $pembiayaanRabRepository;
+    }
 
     public function agronomisGetRabTambahan($pembiayaanID)
     {
@@ -462,26 +471,19 @@ class AgronomisController extends Controller
         return ResponseFormatter::success($penyakit, 'Data penyakit berhasil didapatkan');
     }
 
-    public function agronomisUpdateDanaCadangan($pembiayaanID, $itemRabID)
+    public function agronomisUpdateDanaCadangan(UpdateDanaCadanganRequest $request, $pembiayaanID, $itemRabID)
     {
-        $user = request()->user();
         $pembiayaan = PembiayaanRab::where('pembiayaan_id', $pembiayaanID)->where('item_rab_id', $itemRabID)->first();
         if (!$pembiayaan) {
             return ResponseFormatter::error(null, 'Data pembiayaan tidak ditemukan', 404);
         }
-        $validator = Validator::make(request()->all(), [
-            'harga' => 'required|numeric|min:0',
-        ]);
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator, $validator->messages(), 403);
+        $payload = $request->validated();
+        try {
+            $result = $this->pembiayaanRabRepository->update($payload, $pembiayaanID, $itemRabID);
+            return ResponseFormatter::success($result, 'Data dana cadangan berhasil diupdate');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
-        $pembiayaan->update([
-            'harga' => request('harga'),
-            'mdb' => $user->user_id,
-            'mdb_name' => $user->user_name,
-            'mdd' => Carbon::now(),
-        ]);
-        return ResponseFormatter::success($pembiayaan, 'Data dana cadangan berhasil diupdate');
     }
 
     public function agronomisDelRabTambahan($pembiayaanRabTambahanID)
