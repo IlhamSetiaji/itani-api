@@ -26,6 +26,7 @@ use App\Http\Requests\PembiayaanFotoRekomendasiRequest;
 use App\Http\Requests\PembiayaanKunjunganFileRequest;
 use App\Http\Requests\PembiayaanRabRequest;
 use App\Http\Requests\PenilaianKunjunganRequest;
+use App\Http\Requests\UpdateKegiatanRekomendasiRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\PembiayaanKunjungan;
 use App\Models\MasterRekeningPetani;
@@ -872,6 +873,27 @@ class PetaniController extends Controller
         try {
             $pembiayaanKunjungan->update($payload);
             return ResponseFormatter::success($pembiayaanKunjungan, 'Data berhasil diupdate');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
+        }
+    }
+
+    public function petaniUpdateKegiatanRekomendasi(UpdateKegiatanRekomendasiRequest $request, $pembiayaanKunjunganID)
+    {
+        $pembiayaanKunjungan = PembiayaanKunjungan::find($pembiayaanKunjunganID);
+        if (!$pembiayaanKunjungan) {
+            return ResponseFormatter::error(null, 'Data pembiayaan kunjungan tidak ditemukan', 404);
+        }
+        $payload = $request->validated();
+        $payload['rekomendasi_st'] = 'yes';
+        $payload['mdd'] = Carbon::now();
+        $payload['mdb'] = $payload['user_id'];
+        $payload['mdb_name'] = $payload['nama_petani'];
+        unset($payload['user_id']);
+        unset($payload['nama_petani']);
+        try {
+            $pembiayaanKunjungan->update($payload);
+            return ResponseFormatter::success($pembiayaanKunjungan, 'Data pembiayaan kunjungan berhasil diupdate');
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
