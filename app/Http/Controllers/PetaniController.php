@@ -25,6 +25,7 @@ use App\Http\Requests\PembiayaanFotoKegiatanPetaniRequest;
 use App\Http\Requests\PembiayaanFotoRekomendasiRequest;
 use App\Http\Requests\PembiayaanKunjunganFileRequest;
 use App\Http\Requests\PembiayaanRabRequest;
+use App\Http\Requests\PenilaianKunjunganRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\PembiayaanKunjungan;
 use App\Models\MasterRekeningPetani;
@@ -858,5 +859,21 @@ class PetaniController extends Controller
             ]);
         }
         return ResponseFormatter::success($result, 'Data transaksi saldo petani berhasil didapatkan');
+    }
+
+    public function petaniUpdateKesanKunjunganLahan(PenilaianKunjunganRequest $request, $pembiayaanKunjunganID)
+    {
+        $pembiayaanKunjungan = PembiayaanKunjungan::find($pembiayaanKunjunganID);
+        if (!$pembiayaanKunjungan) {
+            return ResponseFormatter::error(null, 'Data pembiayaan kunjungan tidak ditemukan', 404);
+        }
+        $payload = $request->validated();
+        $payload['penilaian_status'] = 'yes';
+        try {
+            $pembiayaanKunjungan->update($payload);
+            return ResponseFormatter::success($pembiayaanKunjungan, 'Data berhasil diupdate');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
+        }
     }
 }
