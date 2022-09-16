@@ -102,6 +102,7 @@ Route::prefix('ipangan')->group(function () {
 
 // Route::get('/',[PembiayaanController::class,'getLahanBysubclusterBysubcluster']);
 Route::post('/ipangan/petani/post/permintaan/kunjungan', [TestController::class, 'petaniPostPermintaanKunjungan']);
+Route::post('/post/penilaiankunjungan/{pembiayaan_kunjungan_id}', [TestController::class, 'petaniUpdateKesanKunjunganLahan']);
 Route::post('/ipangan/agronomis/laporan/permintaan/aktif/{pembiayaan_kunjungan_id}', [TestController::class, 'agronomisLaporanPermintaanKunjungan']);
 Route::post('/ipangan/agronomis/rab/tambahan', [TestController::class, 'agronomisAddRabTambahan']);
 Route::post('/smartfarming/verifikasi_kegiatan/sidangkomite_mingguan/{pembiayaanID}/{pengajuanID}/{prosesTanamID}', [TestController::class, 'postSidangKomite']);
@@ -225,7 +226,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/get/saprodi/pengambilan/grub2/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup2']);
             Route::get('/get/saprodi/pengambilan/grub3/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup3']);
             Route::get('/get/rekening/traksaksi/saldopetani/{tahun}/{bulan}/{petaniID}', [PetaniController::class, 'petaniGetTransaksiSaldoPetani']);
-            Route::post('/post/penilaiankunjungan/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKesanKunjunganLahan']);
+            // Route::post('/post/penilaiankunjungan/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKesanKunjunganLahan']);
         });
     });
 });
