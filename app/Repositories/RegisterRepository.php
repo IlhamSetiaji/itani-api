@@ -53,6 +53,7 @@ class RegisterRepository implements RegisterInterface
             $result = ComUser::create($params['com_user']);
             Pegawai::create($params['pegawai']);
             $result->com_role_user_sf()->attach('02001');
+            $result->com_user_petani_sf()->attach($payload['petani_id']);
             return $result;
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
