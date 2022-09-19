@@ -23,6 +23,7 @@ use App\Http\Controllers\SmartFarmingMobileAOController;
 */
 
 Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('register', [AuthController::class, 'register'])->name('register');
 Route::get('change-password', [TestController::class, 'insertPassword']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
