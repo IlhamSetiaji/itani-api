@@ -35,6 +35,7 @@ class RegisterRequest extends FormRequest
             'user_name' => 'required|string',
             'user_pass' => 'required|string',
             'user_st' => 'required',
+            'petani_id' => 'required',
         ];
     }
 
