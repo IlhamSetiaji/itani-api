@@ -12,7 +12,7 @@ class ComUser extends Authenticatable
     use HasFactory, HasApiTokens;
     protected $connection = 'mysql_third';
     protected $table = 'com_user';
-    protected $guarded = ['user_id'];
+    protected $guarded = [];
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     public $timestamps = false;
