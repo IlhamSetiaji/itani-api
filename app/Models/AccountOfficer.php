@@ -301,18 +301,19 @@ class AccountOfficer extends Model
     {
         $query = DB::connection('mysql')->select("SELECT b.pembiayaan_id,a.pembiayaan_rab_mingguan_id,a.pembiayaan_rab_id,
         a.kesiapan_kegiatan_st,a.kesiapan_tenaga_kerja_st,a.rencana_kegiatan_st,
-        a.proses_tanam_id,d.petani_id,d.petani_kd,e.lahan_id,
-        e.luas_lahan,f.proses_tanam_nama, a.kesiapan_kegiatan_date,
+        a.proses_tanam_id,d.petani_id,d.petani_kd, e.lahan_id,
+        e.luas_lahan,f.proses_tanam_nama, k.file_name, a.kesiapan_kegiatan_date,
         a.rencana_kegiatan_st,d.`nama_lengkap`,e.`lahan_kd`,d.`petani_kd`,c.`pengajuan_id`,d.`no_telp`,
         d.email,c.`pembiayaan_st`
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON b.pembiayaan_rab_id=a.pembiayaan_rab_id
         JOIN pembiayaan c ON b.pembiayaan_id=c.pembiayaan_id
+        JOIN pembiayaan_files k ON c.`pembiayaan_id` = k.pembiayaan_id
         JOIN pembiayaan_petani d ON d.pembiayaan_id=c.pembiayaan_id
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
-        WHERE a.`rencana_kegiatan_st` IS NOT NULL AND c.`subcluster_id`=:subcluster_id
-        AND c.`cluster_id`= :cluster_id
+        WHERE a.rencana_kegiatan_st IS NOT NULL AND c.`subcluster_id`=:subcluster_id
+        AND c.`cluster_id`=:cluster_id AND persyaratan_id = '0201'
         GROUP BY d.petani_id", [
             "subcluster_id" => $subClusterID,
             "cluster_id" => $clusterID,
