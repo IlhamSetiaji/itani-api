@@ -30,7 +30,7 @@ class RegisterRepository implements RegisterInterface
     public function createResponse($payload)
     {
         $params = array();
-        $user_key  = crc32($payload['user_pass']);
+        $user_key  = abs(crc32($payload['user_pass']));
         $params['com_user'] = array(
             'user_id'       => $this->generate_id(),
             'user_alias'    => $payload['nama_lengkap'],
