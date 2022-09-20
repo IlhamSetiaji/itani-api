@@ -53,7 +53,10 @@ class RegisterRepository implements RegisterInterface
             $result = ComUser::create($params['com_user']);
             $pegawai = Pegawai::create($params['pegawai']);
             try {
-                $result->com_role_user_sf()->attach('02001');
+                $result->com_role_user_sf()->attach('02001', [
+                    'role_default' => '1',
+                    'role_display' => '1',
+                ]);
             } catch (Exception $e) {
                 $result->delete();
                 $pegawai->delete();
