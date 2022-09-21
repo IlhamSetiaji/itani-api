@@ -898,4 +898,23 @@ class PetaniController extends Controller
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
     }
+
+
+
+    public function getDataPhoto($petaniID)
+    {
+        $petani = PendataanPetani::find($petaniID);
+        if (!$petani) {
+            return ResponseFormatter::error(null, 'Data petani tidak ditemukan', 404);
+        }
+        $result = Petani::GetDataPhoto($petaniID);
+        if (sizeof($result) == 0) {
+            return response()->json([
+                'data' => null,
+                'status' => 204,
+                'message' => 'Data Kosong',
+            ]);
+        }
+        return ResponseFormatter::success($result, 'Data petani berhasil didapatkan');
+    }
 }

@@ -821,4 +821,15 @@ class Petani extends Model
         ]);
         return $query;
     }
+
+
+    public function scopeGetDataPhoto($query, $petaniID)
+    {
+        $query = DB::connection('mysql_second')->select("SELECT a.petani_id, b.file_name, b.file_path FROM
+           pendataan_petani a JOIN pendataan_petani_files b ON a.`petani_id` = b.`petani_id`
+            WHERE a.petani_id =:petani_id AND b.persyaratan_id = 0101", [
+            'petani_id' => $petaniID,
+        ]);
+        return $query;
+    }
 }
