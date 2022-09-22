@@ -16,10 +16,12 @@ use Illuminate\Support\Facades\Hash;
 use App\Repositories\LoginRepository;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Resources\RegisterResource;
 use Illuminate\Support\Facades\Config;
+use App\Http\Resources\RegisterResource;
 use App\Repositories\RegisterRepository;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\RegisterUpdateRequest;
+use App\Http\Resources\PetaniUpdateResource;
 
 class AuthController extends Controller
 {
@@ -60,5 +62,19 @@ class AuthController extends Controller
             return ResponseFormatter::error(null, 'Email ' . $payload['user_mail'] . ' sudah terpakai', 409);
         }
         return ResponseFormatter::success(new RegisterResource($this->registerRepository->createResponse($payload)), 'Data user berhasil didaftarkan');
+    }
+
+    public function update(RegisterUpdateRequest $request, $userID)
+    {
+        $user = ComUser::find($userID);
+        if (!$user) {
+            return ResponseFormatter::error(null, 'Data user tidak ditemukan', 404);
+        }
+        $pegawai = Pegawai::find($userID);
+        if (!$pegawai) {
+            return ResponseFormatter::error(null, 'Data pegawai tidak ditemukan', 404);
+        }
+        $payload = $request->validated();
+        return ResponseFormatter::success(new PetaniUpdateResource($this->registerRepository->updateResponse($payload, $user, $pegawai)), 'Data user berhasil diupdate');
     }
 }

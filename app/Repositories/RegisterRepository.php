@@ -9,6 +9,7 @@ use App\Models\Pegawai;
 use App\Models\AuthLogin;
 use App\Models\PembiayaanRab;
 use App\Helpers\ResponseFormatter;
+use App\Http\Requests\RegisterUpdateRequest;
 use App\Interfaces\LoginInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +72,39 @@ class RegisterRepository implements RegisterInterface
                 return ResponseFormatter::error(null, $e->getMessage(), 400);
             }
             return $result;
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
+        }
+    }
+
+    public function updateResponse($payload, $user, $pegawai)
+    {
+        $params['com_user'] = array(
+            // 'user_id'       => $this->generate_id(),
+            'user_alias'    => $payload['nama_lengkap'],
+            'user_name'     => $payload['user_name'],
+            'user_mail'     => $payload['user_mail'],
+            'user_st'       => $payload['user_st'],
+            'user_completed' => '1',
+            'mdd'           => Carbon::now(),
+        );
+        $params['pegawai'] = array(
+            // 'user_id'           => $this->generate_id(),
+            'nama_lengkap'      => $payload['nama_lengkap'],
+            'alamat_tinggal'    => $payload['alamat_tinggal'],
+            'nomor_telepon'     => $payload['nomor_telepon'],
+            'mdd'       => date("Y-m-d H:i:s"),
+        );
+        if (!empty($payload['user_pass'])) {
+            $key  = crc32($payload['user_pass']);
+            $user_key = abs($key);
+            $params['com_user']['user_pass'] = Hash::make($payload['user_pass'] . $user_key);
+            $params['com_user']['user_key'] = $user_key;
+        }
+        try {
+            $user->update($params['com_user']);
+            $pegawai->update($params['pegawai']);
+            return $user;
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
