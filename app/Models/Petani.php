@@ -782,8 +782,10 @@ class Petani extends Model
             e.mdd AS waktu_timbang_pabrik,
             f.supir_id,
             f.truk_nopol,
-            g.pabrik_id, e.potongan_pajak,e.potongan_retribusi,
-            h.alamat AS alamat_pabrik, e.`pembelian_bersih`,e.`pendapatan_bersih_petani`,
+            g.pabrik_id,
+            h.alamat AS alamat_pabrik,
+            SUM(j.jumlah*i.harga) AS pascapanen,
+            (SUM(j.jumlah*i.harga) + e.pendapatan_bersih_petani) AS pendapatan_bersih_petani,
             e.fee_distribusi AS potongan_jasa_truk,
             e.`total_pembelian` AS pendapatan_kotor
             FROM panen_pengangkutan_hasil a
@@ -794,9 +796,10 @@ class Petani extends Model
             LEFT JOIN panen_pengangkutan f ON f.pengangkutan_id=a.pengangkutan_id
             LEFT JOIN panen_penimbangan g ON g.penimbangan_id=e.penimbangan_id
             LEFT JOIN master_pabrik h ON g.pabrik_id=h.pabrik_id
-            WHERE b.pembiayaan_id=:pembiayaan_id AND c.active_st='yes'
-            GROUP BY e.penimbangan_hasil_id", [
-
+            JOIN pembiayaan_rab i ON c.pembiayaan_id = i.pembiayaan_id
+	        JOIN pembiayaan_rab_mingguan j ON i.pembiayaan_rab_id = j.pembiayaan_rab_id
+	        JOIN master_item_rab k ON i.item_rab_id = k.item_rab_id
+            WHERE b.pembiayaan_id=:pembiayaan_id AND c.active_st='yes' AND j.proses_tanam_id =18", [
             "pembiayaan_id" => $pembiayaanID,
         ]);
         return $query;
