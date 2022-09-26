@@ -728,7 +728,7 @@ class Petani extends Model
     public function scopePetaniGetKunjunganLahan($query, $pembiayaanID)
     {
         $query = DB::connection('mysql')->select("SELECT a.*,
-        b.nama_lengkap FROM pembiayaan_kunjungan a
+        b.nama_lengkap, b.image_file_name FROM pembiayaan_kunjungan a
         LEFT JOIN ipangan_sf_v1_db_demo.pendamping b ON a.pendamping_id=b.pendamping_id
         WHERE pembiayaan_id=:pembiayaan_id", [
             "pembiayaan_id" => $pembiayaanID,
