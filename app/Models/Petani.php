@@ -12,18 +12,18 @@ class Petani extends Model
 
     public function scopePetaniGetRealisasiKegiatan($query, $pembiayaanID)
     {
-        $query = DB::connection('mysql')->select("SELECT SUM(IF(a.`pencairan_st`='yes' AND e.item_rab_id != '32' AND e.group_rab_id!='1',(a.jumlah*b.harga),0)) +
-        SUM(IF(a.`pembayaran_st`='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) + IF(f.nilai_tambahan IS NOT NULL, f.nilai_tambahan,0)
+        $query = DB::connection('mysql')->select("SELECT SUM(IF(a.pencairan_st='yes' AND e.group_rab_id!='1',(a.jumlah*b.harga),0)) +
+        SUM(IF(a.pembayaran_st='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) + IF(f.nilai_tambahan IS NOT NULL, f.nilai_tambahan,0)
         AS pembiayaan_terpakai,
-        e.`nama_item`,a.`jumlah`,b.`harga`,a.`pencairan_date`,
-        SUM(IF(a.`pembayaran_st`='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) AS saprodi,
-        SUM(IF(a.`pencairan_st`='yes' AND b.item_rab_id !=1 AND e.group_rab_id!=1,(a.jumlah*b.harga),0)) AS tenaga,
+        e.nama_item,a.jumlah,b.harga,a.pencairan_date,
+        SUM(IF(a.pembayaran_st='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) AS saprodi,
+        SUM(IF(a.pencairan_st='yes' AND b.item_rab_id !=1 AND e.group_rab_id!=1,(a.jumlah*b.harga),0)) AS       tenaga,
         IF(f.nilai_tambahan IS NOT NULL, f.nilai_tambahan,0) AS nilai_tambahan
         FROM pembiayaan_rab_mingguan a
         LEFT JOIN pembiayaan_rab b ON b.pembiayaan_rab_id = a.pembiayaan_rab_id
         LEFT JOIN pembiayaan c ON c.pembiayaan_id = b.pembiayaan_id
         LEFT JOIN master_item_fee d ON d.item_rab_id = b.item_rab_id
-        LEFT JOIN master_item_rab e ON e.`item_rab_id` = b.`item_rab_id`
+        LEFT JOIN master_item_rab e ON e.item_rab_id = b.item_rab_id
         LEFT JOIN pembiayaan_rab_tambahan f ON f.pembiayaan_id = c.pembiayaan_id
         WHERE c.pembiayaan_id = :pembiayaan_id", [
             'pembiayaan_id' => $pembiayaanID,
