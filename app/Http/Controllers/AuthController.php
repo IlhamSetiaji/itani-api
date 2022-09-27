@@ -22,16 +22,19 @@ use App\Repositories\RegisterRepository;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\RegisterUpdateRequest;
 use App\Http\Resources\PetaniUpdateResource;
+use App\Repositories\AuthRepository;
 
 class AuthController extends Controller
 {
     private LoginRepository $loginRepository;
+    private AuthRepository $authRepository;
     private RegisterRepository $registerRepository;
 
-    public function __construct(LoginRepository $loginRepository, RegisterRepository $registerRepository)
+    public function __construct(LoginRepository $loginRepository, RegisterRepository $registerRepository, AuthRepository $authRepository)
     {
         $this->loginRepository = $loginRepository;
         $this->registerRepository = $registerRepository;
+        $this->authRepository = $authRepository;
     }
 
     public function login(LoginRequest $request)
@@ -76,5 +79,19 @@ class AuthController extends Controller
         }
         $payload = $request->validated();
         return ResponseFormatter::success(new PetaniUpdateResource($this->registerRepository->updateResponse($payload, $user, $pegawai)), 'Data user berhasil diupdate');
+    }
+
+    public function getDataUser($userID)
+    {
+        $user = ComUser::find($userID);
+        if (!$user) {
+            return ResponseFormatter::error(null, 'Data user tidak ditemukan', 404);
+        }
+        try {
+            $result = $this->authRepository->getDataUser($user);
+            return ResponseFormatter::success($result, 'Data useer berhasil didapatkan');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
+        }
     }
 }
