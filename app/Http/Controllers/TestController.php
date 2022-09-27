@@ -25,6 +25,7 @@ use App\Http\Requests\PembiayaanKunjunganRequest;
 use App\Http\Requests\PembiayaanRabTambahanRequest;
 use App\Repositories\TaskPengajuanProcessRepository;
 use App\Http\Requests\PembiayaanKunjunganUpdateRequest;
+use App\Http\Requests\UpdatePengangkutanRequest;
 use App\Models\PanenPenimbanganHasil;
 
 class TestController extends Controller
@@ -201,13 +202,19 @@ class TestController extends Controller
         }
     }
 
-    public function addHasilPanen(HasilPanenRequest $request)
+    public function addHasilPanen(HasilPanenRequest $request, UpdatePengangkutanRequest $updatePengangkutanRequest)
     {
         $payload = $request->validated();
+        $updatedData = $updatePengangkutanRequest->validated();
         $payload['mdd'] = Carbon::now();
         try {
             $result = PanenPengangkutanHasil::create($payload);
-            return ResponseFormatter::success($result, 'Data panen pengangkutan hasil berhasil diinputkan');
+            $updatedResult = $result->panen_pengangkutan()->update($updatedData);
+            $arrData = [
+                'panen_pengangkutan' => $updatedResult,
+                'panen_pengangkutan_hasil' => $result,
+            ];
+            return ResponseFormatter::success($arrData, 'Data panen pengangkutan hasil berhasil diinputkan');
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }

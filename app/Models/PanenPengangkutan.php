@@ -14,4 +14,9 @@ class PanenPengangkutan extends Model
     protected $primaryKey = 'pengangkutan_id';
     public $incrementing = false;
     public $timestamps = false;
+
+    public function panen_pengangkutan_hasil()
+    {
+        return $this->hasMany(PanenPengangkutanHasil::class);
+    }
 }
