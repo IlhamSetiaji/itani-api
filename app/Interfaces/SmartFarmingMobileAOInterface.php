@@ -15,7 +15,7 @@ interface SmartFarmingMobileAOInterface
     public function transformLahan($lahan);
     public function transformLahanAnother($result);
     public function transformVarietas($result);
-    public function calculateRab($luas_lahan);
+    public function calculateRab($luas_lahan, $clusterID);
     public function generate_id();
     public function postLahan($payload);
 }

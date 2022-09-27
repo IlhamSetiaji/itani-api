@@ -182,7 +182,7 @@ class SmartFarmingMobileAOController extends Controller
 
     public function pengajuanPembiayaanByRabLuas()
     {
-        $rab = $this->smartFarmingMobileAORepository->calculateRab(request('luas_lahan'));
+        $rab = $this->smartFarmingMobileAORepository->calculateRab(request('luas_lahan'), request('cluster_id'));
         unset($rab['kegiatan_mingguan']);
         $rab['item'] = $this->smartFarmingMobileAORepository->transformsItemRab($rab['item']);
         return ResponseFormatter::success($rab, 'Data rab berhasil didapatkan');

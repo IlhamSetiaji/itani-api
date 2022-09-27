@@ -348,9 +348,9 @@ class SmartFarmingMobileAORepository implements SmartFarmingMobileAOInterface
         return $data;
     }
 
-    public function calculateRab($luas_lahan)
+    public function calculateRab($luas_lahan, $clusterID)
     {
-        $rabs = Rab::where('active_st', 'yes')->orderBy('nama_rab', 'asc')->get()->toArray();
+        $rabs = Rab::where('active_st', 'yes')->where('cluster_id', $clusterID)->orderBy('nama_rab', 'asc')->get()->toArray();
         $satu_hektar = 10000;
         //default
         $paket_terkecil = 1500;
