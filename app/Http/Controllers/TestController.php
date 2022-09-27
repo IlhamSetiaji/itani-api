@@ -25,8 +25,12 @@ use App\Http\Requests\PembiayaanKunjunganRequest;
 use App\Http\Requests\PembiayaanRabTambahanRequest;
 use App\Repositories\TaskPengajuanProcessRepository;
 use App\Http\Requests\PembiayaanKunjunganUpdateRequest;
+use App\Http\Requests\RabRequest;
 use App\Http\Requests\UpdatePengangkutanRequest;
 use App\Models\PanenPenimbanganHasil;
+use App\Models\Rab;
+use App\Models\RabDetail;
+use App\Models\RabDetailMingguan;
 
 class TestController extends Controller
 {
@@ -202,19 +206,31 @@ class TestController extends Controller
         }
     }
 
-    public function addHasilPanen(HasilPanenRequest $request, UpdatePengangkutanRequest $updatePengangkutanRequest)
+    // public function addHasilPanen(HasilPanenRequest $request, UpdatePengangkutanRequest $updatePengangkutanRequest)
+    // {
+    //     $payload = $request->validated();
+    //     $updatedData = $updatePengangkutanRequest->validated();
+    //     $payload['mdd'] = Carbon::now();
+    //     try {
+    //         $result = PanenPengangkutanHasil::create($payload);
+    //         $updatedResult = $result->panen_pengangkutan()->update($updatedData);
+    //         $arrData = [
+    //             'panen_pengangkutan' => $updatedResult,
+    //             'panen_pengangkutan_hasil' => $result,
+    //         ];
+    //         return ResponseFormatter::success($arrData, 'Data panen pengangkutan hasil berhasil diinputkan');
+    //     } catch (Exception $e) {
+    //         return ResponseFormatter::error(null, $e->getMessage(), 400);
+    //     }
+    // }
+
+    public function addHasilPanen(HasilPanenRequest $request)
     {
         $payload = $request->validated();
-        $updatedData = $updatePengangkutanRequest->validated();
         $payload['mdd'] = Carbon::now();
         try {
             $result = PanenPengangkutanHasil::create($payload);
-            $updatedResult = $result->panen_pengangkutan()->update($updatedData);
-            $arrData = [
-                'panen_pengangkutan' => $updatedResult,
-                'panen_pengangkutan_hasil' => $result,
-            ];
-            return ResponseFormatter::success($arrData, 'Data panen pengangkutan hasil berhasil diinputkan');
+            return ResponseFormatter::success($result, 'Data panen pengangkutan hasil berhasil diinputkan');
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
@@ -233,5 +249,62 @@ class TestController extends Controller
             }
         }
         return ResponseFormatter::success($users, 'Data password berhasil diinputkan');
+    }
+
+    public function insertBulkRab(RabRequest $rabRequest)
+    {
+        $payload = $rabRequest->validated();
+        $payload['mdd'] = Carbon::now();
+        $rabDetailIDs = array();
+        try {
+            $rab = Rab::create($payload);
+            $rabDetails = RabDetail::where('rab_id', 1)->get();
+            foreach ($rabDetails as $rabDetail) {
+                $rabDetailResult = RabDetail::create([
+                    'rab_id' => $rab->rab_id,
+                    'item_rab_id' => $rabDetail->item_rab_id,
+                    'paket_rab_id' => $rabDetail->paket_rab_id,
+                    'jumlah' => $rabDetail->jumlah,
+                    'harga' => $rabDetail->harga,
+                    'mdb' => $rabDetail->mdb,
+                    'mdb_name' => $rabDetail->mdb_name,
+                    'mdd' => Carbon::now(),
+                ]);
+                array_push($rabDetailIDs, $rabDetailResult->rab_detail_id);
+            }
+            $rabMingguans = RabDetailMingguan::whereBetween('rab_detail_id', [1, 607])->get()->toArray();
+            $duplicates = array();
+            $i = 0;
+            foreach ($rabMingguans as $key => $rabMingguan) {
+                $i++;
+                $array_exist = array_filter($duplicates, function ($val) use ($rabMingguan) {
+                    return ($val['rab_detail_id'] === $rabMingguan['rab_detail_id']);
+                });
+                if (empty($array_exist)) {
+                    RabDetailMingguan::create([
+                        'rab_detail_id' => $rabDetailIDs[$i],
+                        'proses_tanam_id' => $rabMingguan['proses_tanam_id'],
+                        'jumlah' => $rabMingguan['jumlah'],
+                        'mdb' => $rabMingguan['mdb'],
+                        'mdb_name' => $rabMingguan['mdb_name'],
+                        'mdd' => Carbon::now(),
+                    ]);
+                    $i++;
+                    $i = $i - 1;
+                } else {
+                    RabDetailMingguan::create([
+                        'rab_detail_id' => $rabDetailIDs[$i],
+                        'proses_tanam_id' => $rabMingguan['proses_tanam_id'],
+                        'jumlah' => $rabMingguan['jumlah'],
+                        'mdb' => $rabMingguan['mdb'],
+                        'mdb_name' => $rabMingguan['mdb_name'],
+                        'mdd' => Carbon::now(),
+                    ]);
+                }
+            }
+            return $duplicates;
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), 400);
+        }
     }
 }
