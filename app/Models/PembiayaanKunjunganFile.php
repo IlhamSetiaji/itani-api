@@ -10,7 +10,7 @@ class PembiayaanKunjunganFile extends Model
     use HasFactory;
     protected $connection = 'mysql';
     protected $table = 'pembiayaan_kunjungan_file';
-    protected $guarded = ['file_id'];
+    protected $guarded = [];
     protected $primaryKey = 'file_id';
     public $incrementing = false;
     public $timestamps = false;
