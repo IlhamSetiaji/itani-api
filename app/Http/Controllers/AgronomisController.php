@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pembiayaan;
-use Illuminate\Http\Request;
-use App\Helpers\ResponseFormatter;
-use App\Http\Requests\UpdateDanaCadanganRequest;
-use App\Models\Agronomis;
+use Exception;
+use Carbon\Carbon;
 use App\Models\ComUser;
-use App\Models\MasterCekaman;
+use App\Models\Agronomis;
 use App\Models\MasterHama;
+use App\Models\Pembiayaan;
+use App\Models\Pendamping;
+use Illuminate\Http\Request;
+use App\Models\MasterCekaman;
 use App\Models\MasterItemRab;
+use App\Models\PembiayaanRab;
 use App\Models\MasterPenyakit;
+use App\Helpers\ResponseFormatter;
+use Illuminate\Support\Facades\DB;
 use App\Models\PembiayaanKunjungan;
 use App\Models\PembiayaanRabTambahan;
-use App\Models\PembiayaanFotoRekomendasi;
 use App\Models\PembiayaanKunjunganFile;
-use App\Models\PembiayaanRab;
-use App\Models\Pendamping;
-use App\Repositories\PembiayaanRabRepository;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Support\Facades\DB;
+use App\Models\PembiayaanFotoRekomendasi;
 use Illuminate\Support\Facades\Validator;
+use App\Repositories\PembiayaanRabRepository;
+use App\Http\Requests\UpdateDanaCadanganRequest;
+use App\Http\Requests\PembiayaanKunjunganFileRequest;
 
 class AgronomisController extends Controller
 {
@@ -494,5 +495,21 @@ class AgronomisController extends Controller
         }
         $pembiayaanRabTambahan->delete();
         return ResponseFormatter::success(null, 'Data rab tambahan berhasil dihapus');
+    }
+
+
+    public function agronomisAddImageLahan(PembiayaanKunjunganFileRequest $request)
+    {
+        $user = request()->user();
+        $payload = $request->validated();
+        $payload['mdb'] = $user->user_id;
+        $payload['mdb_name'] = $user->user_name;
+        $payload['mdd'] = Carbon::now();
+        try {
+            $result = PembiayaanKunjunganFile::create($payload);
+        } catch (Exception $e) {
+            return ResponseFormatter::error(null, $e->getMessage(), '400');
+        }
+        return ResponseFormatter::success($result, 'Data berhasil tambahkan');
     }
 }

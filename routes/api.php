@@ -105,6 +105,7 @@ Route::prefix('ipangan')->group(function () {
 ); */
 
 // Route::get('/',[PembiayaanController::class,'getLahanBysubclusterBysubcluster']);
+Route::post('/ipangan/agronomis/add/img/lahan', [AgronomisController::class, 'agronomisAddImageLahan']);
 Route::post('/ipangan/petani/post/permintaan/kunjungan', [TestController::class, 'petaniPostPermintaanKunjungan']);
 Route::post('/ipangan/petani/post/penilaiankunjungan/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKesanKunjunganLahan']);
 Route::post('/ipangan/petani/post/konfirmasi/kegiatanrekomendasi/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKegiatanRekomendasi']);
