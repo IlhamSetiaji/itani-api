@@ -28,7 +28,7 @@ class PembiayaanKunjunganFileRequest extends FormRequest
     public function rules()
     {
         return [
-            'file_id' => 'required|numeric',
+            'file_id' => 'required|string',
             'pembiayaan_kunjungan_id' => 'required|string',
             'file_path' => 'required|string',
             'file_img' => 'required|string',
