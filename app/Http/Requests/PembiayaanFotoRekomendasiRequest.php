@@ -28,7 +28,7 @@ class PembiayaanFotoRekomendasiRequest extends FormRequest
     public function rules()
     {
         return [
-            'pembiayaan_foto_rekomendasi_id' => 'required|numeric',
+            'pembiayaan_foto_rekomendasi_id' => 'required|string',
             'pembiayaan_kunjungan_id' => 'required|string',
             'pembiayaan_id' => 'required|numeric',
             'jenis_kunjungan' => 'required|string',
