@@ -27,7 +27,7 @@ Route::post('register', [AuthController::class, 'register'])->name('register');
 Route::post('/account/{userID}/update', [AuthController::class, 'update']);
 Route::get('change-password', [TestController::class, 'insertPassword']);
 Route::get('/get/{userID}/user-data', [AuthController::class, 'getDataUser']);
-Route::post('insert-rab', [TestController::class, 'insertBulkRab']);
+Route::post('insert/bulk/rab', [TestController::class, 'insertBulkRab']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
