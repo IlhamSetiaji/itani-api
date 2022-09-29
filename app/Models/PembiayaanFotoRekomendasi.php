@@ -10,7 +10,7 @@ class PembiayaanFotoRekomendasi extends Model
     use HasFactory;
     protected $connection = 'mysql';
     protected $table = 'pembiayaan_foto_rekomendasi';
-    protected $guarded = ['pembiayaan_foto_rekomendasi_id'];
+    protected $guarded = [];
     protected $primaryKey = 'pembiayaan_foto_rekomendasi_id';
     public $incrementing = false;
     public $timestamps = false;
