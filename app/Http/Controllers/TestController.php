@@ -31,16 +31,19 @@ use App\Models\PanenPenimbanganHasil;
 use App\Models\Rab;
 use App\Models\RabDetail;
 use App\Models\RabDetailMingguan;
+use App\Repositories\TestRepository;
 
 class TestController extends Controller
 {
     private TaskPengajuanRepository $taskPengajuanRepository;
     private TaskPengajuanProcessRepository $taskPengajuanProcessRepository;
+    private TestRepository $testRepository;
 
-    public function __construct(TaskPengajuanRepository $taskPengajuanRepository, TaskPengajuanProcessRepository $taskPengajuanProcessRepository)
+    public function __construct(TaskPengajuanRepository $taskPengajuanRepository, TaskPengajuanProcessRepository $taskPengajuanProcessRepository, TestRepository $testRepository)
     {
         $this->taskPengajuanRepository = $taskPengajuanRepository;
         $this->taskPengajuanProcessRepository = $taskPengajuanProcessRepository;
+        $this->testRepository = $testRepository;
     }
 
     public function generate_id()
@@ -255,54 +258,9 @@ class TestController extends Controller
     {
         $payload = $rabRequest->validated();
         $payload['mdd'] = Carbon::now();
-        $rabDetailIDs = array();
         try {
-            $rab = Rab::create($payload);
-            $rabDetails = RabDetail::where('rab_id', 1)->get();
-            foreach ($rabDetails as $rabDetail) {
-                $rabDetailResult = RabDetail::create([
-                    'rab_id' => $rab->rab_id,
-                    'item_rab_id' => $rabDetail->item_rab_id,
-                    'paket_rab_id' => $rabDetail->paket_rab_id,
-                    'jumlah' => $rabDetail->jumlah,
-                    'harga' => $rabDetail->harga,
-                    'mdb' => $rabDetail->mdb,
-                    'mdb_name' => $rabDetail->mdb_name,
-                    'mdd' => Carbon::now(),
-                ]);
-                array_push($rabDetailIDs, $rabDetailResult->rab_detail_id);
-            }
-            $rabMingguans = RabDetailMingguan::whereBetween('rab_detail_id', [1, 607])->get()->toArray();
-            $duplicates = array();
-            $i = 0;
-            foreach ($rabMingguans as $key => $rabMingguan) {
-                $i++;
-                $array_exist = array_filter($duplicates, function ($val) use ($rabMingguan) {
-                    return ($val['rab_detail_id'] === $rabMingguan['rab_detail_id']);
-                });
-                if (empty($array_exist)) {
-                    RabDetailMingguan::create([
-                        'rab_detail_id' => $rabDetailIDs[$i],
-                        'proses_tanam_id' => $rabMingguan['proses_tanam_id'],
-                        'jumlah' => $rabMingguan['jumlah'],
-                        'mdb' => $rabMingguan['mdb'],
-                        'mdb_name' => $rabMingguan['mdb_name'],
-                        'mdd' => Carbon::now(),
-                    ]);
-                    $i++;
-                    $i = $i - 1;
-                } else {
-                    RabDetailMingguan::create([
-                        'rab_detail_id' => $rabDetailIDs[$i],
-                        'proses_tanam_id' => $rabMingguan['proses_tanam_id'],
-                        'jumlah' => $rabMingguan['jumlah'],
-                        'mdb' => $rabMingguan['mdb'],
-                        'mdb_name' => $rabMingguan['mdb_name'],
-                        'mdd' => Carbon::now(),
-                    ]);
-                }
-            }
-            return $duplicates;
+            $result = $this->testRepository->insertBulkRab($payload);
+            return ResponseFormatter::success($result, 'Data berhasil diinputkan');
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), 400);
         }
