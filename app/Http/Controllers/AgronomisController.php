@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Repositories\PembiayaanRabRepository;
 use App\Http\Requests\UpdateDanaCadanganRequest;
 use App\Http\Requests\PembiayaanKunjunganFileRequest;
+use App\Http\Requests\PembiayaanKunjunganHasilRequest;
+use App\Models\PembiayaanKunjunganHasil;
 
 class AgronomisController extends Controller
 {
@@ -499,7 +501,7 @@ class AgronomisController extends Controller
     }
 
 
-    public function agronomisAddImageLahan(PembiayaanKunjunganFileRequest $request)
+    public function agronomisAddImageLahan(PembiayaanKunjunganHasilRequest $request)
     {
         $user = Auth::check() ? request()->user() : '';
         $payload = $request->validated();
@@ -507,7 +509,7 @@ class AgronomisController extends Controller
         $payload['mdb_name'] = Auth::check() ? $user->user_name : '';
         $payload['mdd'] = Carbon::now();
         try {
-            $result = PembiayaanKunjunganFile::create($payload);
+            $result = PembiayaanKunjunganHasil::create($payload);
         } catch (Exception $e) {
             return ResponseFormatter::error(null, $e->getMessage(), '400');
         }
