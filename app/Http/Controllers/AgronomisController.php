@@ -17,6 +17,7 @@ use App\Models\MasterPenyakit;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
 use App\Models\PembiayaanKunjungan;
+use Illuminate\Support\Facades\Auth;
 use App\Models\PembiayaanRabTambahan;
 use App\Models\PembiayaanKunjunganFile;
 use App\Models\PembiayaanFotoRekomendasi;
@@ -500,10 +501,10 @@ class AgronomisController extends Controller
 
     public function agronomisAddImageLahan(PembiayaanKunjunganFileRequest $request)
     {
-        $user = request()->user();
+        $user = Auth::check() ? request()->user() : '';
         $payload = $request->validated();
-        $payload['mdb'] = $user->user_id;
-        $payload['mdb_name'] = $user->user_name;
+        $payload['mdb'] = Auth::check() ? $user->user_id : '';
+        $payload['mdb_name'] = Auth::check() ? $user->user_name : '';
         $payload['mdd'] = Carbon::now();
         try {
             $result = PembiayaanKunjunganFile::create($payload);
