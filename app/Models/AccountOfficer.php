@@ -154,7 +154,7 @@ class AccountOfficer extends Model
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
         JOIN master_item_rab g ON g.item_rab_id = b.item_rab_id
-        WHERE a.`pembayaran_st` IS NOT NULL AND d.petani_id=:petani_id AND g.item_rab_id != '32'
+        WHERE a.`pembayaran_st` IS NOT NULL AND d.petani_id=:petani_id AND g.item_rab_id != '32' AND  k.`persyaratan_id` = '0201'
         GROUP BY b.pembiayaan_id,a.proses_tanam_id", [
             'petani_id' => $petaniID,
         ]);
