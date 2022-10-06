@@ -830,8 +830,26 @@ class Petani extends Model
     {
         $query = DB::connection('mysql_second')->select("SELECT a.petani_id, b.file_name, b.file_path FROM
            pendataan_petani a JOIN pendataan_petani_files b ON a.`petani_id` = b.`petani_id`
-            WHERE a.petani_id =:petani_id AND b.persyaratan_id = 0101", [
+            WHERE a.petani_id =:petani_id AND b.persyaratan_id = 0201", [
             'petani_id' => $petaniID,
+        ]);
+        return $query;
+    }
+
+    public function scopePetaniGetPetaniLahanShow($lahanID)
+    {
+        $query = DB::connection('mysql_second')->select("SELECT a.lahan_id,
+                    a.nama_pemilik,
+                    b.nama_kelompok_tani,
+                    a.blok_lahan_id,
+                    a.alamat,
+                    a.luas_lahan,
+                    a.pembiayaan_id
+                    from pembiayaan_lahan a
+                    join pembiayaan_petani b on a.pembiayaan_id = b.pembiayaan_id
+                    where a.lahan_id=:lahan_id
+                    group by lahan_id", [
+            'lahan_id' => $lahanID,
         ]);
         return $query;
     }

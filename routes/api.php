@@ -233,6 +233,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/get/saprodi/pengambilan/grub3/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup3']);
             Route::get('/get/rekening/traksaksi/saldopetani/{tahun}/{bulan}/{petaniID}', [PetaniController::class, 'petaniGetTransaksiSaldoPetani']);
             Route::get('/get/data/photo/{petaniID}', [PetaniController::class, 'getDataPhoto']);
+            Route::get('/lahan/show/{lahaniID}', [PetaniController::class, 'LahanShow']);
             // Route::post('/post/penilaiankunjungan/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKesanKunjunganLahan']);
         });
     });
