@@ -223,7 +223,7 @@ class AccountOfficer extends Model
         SUM(a.`kesiapan_kegiatan_st`) AS total,
         e.`kios_nama`,e.`kios_id`,
         f.`alamat`,
-        a.`kesiapan_stok_date`
+    a.`kesiapan_stok_date`
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON a.pembiayaan_rab_id = b.pembiayaan_rab_id
         JOIN master_proses_tanam c ON a.`proses_tanam_id` = c.`proses_tanam_id`
@@ -327,12 +327,15 @@ class AccountOfficer extends Model
 
     public function scopeAoGetJumlahKesiapanSaprodi($query, $pembiayaanID, $prosesTanamID)
     {
-        $query = DB::connection('mysql')->select("SELECT b.`jumlah`,d.`nama_item`,d.`satuan`,
-        (b.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
-        SUM(IF(a.`kesiapan_stok_st`='yes',1,0)) AS kesiapan,
-        SUM(a.`kesiapan_stok_st` IS NOT NULL) AS total,
+        $query = DB::connection('mysql')->select("SELECT a.`jumlah`,d.`nama_item`,
+        d.`satuan`,
+        SUM(a.jumlah*b.harga) AS harga,
+        a.kesiapan_stok_st,
+        SUM(IF(a.`kesiapan_kegiatan_st`='yes',1,0)) AS kesiapan,
+        SUM(a.`kesiapan_kegiatan_st`) AS total,
         e.`kios_nama`,e.`kios_id`,
-        f.`alamat`,a.`kesiapan_stok_date`
+        f.`alamat`,
+    a.`kesiapan_stok_date`
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON a.pembiayaan_rab_id = b.pembiayaan_rab_id
         JOIN master_proses_tanam c ON a.`proses_tanam_id` = c.`proses_tanam_id`
