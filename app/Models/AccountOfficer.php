@@ -112,7 +112,7 @@ class AccountOfficer extends Model
     public function scopeAoGetDataAoHome($query, $userID)
     {
         $query = DB::connection('mysql_second')->select("SELECT a.`pendamping_id`,a.`pendamping_kd`,
-        a.`nama_lengkap`,b.`subcluster_id`,c.`user_id` FROM pendamping a
+        a.`nama_lengkap`,b.`subcluster_id`,c.`user_id`, a.`image_file_name` FROM pendamping a
         JOIN `pendamping_account_officer` b ON a.`pendamping_id`=b.`pendamping_id`
         JOIN com_user_pendamping c ON c.`pendamping_id`=b.`pendamping_id`
         WHERE c.`user_id`=:user_id", [
@@ -140,7 +140,7 @@ class AccountOfficer extends Model
     public function scopePetaniGetListDetailRencanaKegiatanByPetaniId($query, $petaniID)
     {
         $query = DB::connection('mysql')->select("SELECT b.pembiayaan_id,a.pembiayaan_rab_mingguan_id,a.pembiayaan_rab_id,
-        a.kesiapan_kegiatan_st,a.kesiapan_tenaga_kerja_st,a.rencana_kegiatan_st,
+        a.kesiapan_kegiatan_st,a.kesiapan_tenaga_kerja_st,a.rencana_kegiatan_st, k.file_name,
         a.proses_tanam_id,d.petani_id,d.petani_kd,e.lahan_id,f.proses_tanam_nama,
         a.rencana_kegiatan_st,d.`nama_lengkap`,e.`lahan_kd`,d.`petani_kd`
         ,a.`pembayaran_st`,
@@ -149,11 +149,16 @@ class AccountOfficer extends Model
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON b.pembiayaan_rab_id=a.pembiayaan_rab_id
         JOIN pembiayaan c ON b.pembiayaan_id=c.pembiayaan_id
+        JOIN pembiayaan_files k ON c.`pembiayaan_id` = k.pembiayaan_id
         JOIN pembiayaan_petani d ON d.pembiayaan_id=c.pembiayaan_id
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
         JOIN master_item_rab g ON g.item_rab_id = b.item_rab_id
+<<<<<<< HEAD
         WHERE a.`pembayaran_st` IS NOT NULL AND d.petani_id=:petani_id AND g.item_rab_id != '32'
+=======
+        WHERE a.`pembayaran_st` IS NOT NULL AND d.petani_id=:petani_id AND g.item_rab_id != '32' AND  k.`persyaratan_id` = '0201'
+>>>>>>> abda605bae0b9dd46487033c743ffc886a41a609
         GROUP BY b.pembiayaan_id,a.proses_tanam_id", [
             'petani_id' => $petaniID,
         ]);
@@ -214,14 +219,25 @@ class AccountOfficer extends Model
 
     public function scopeAoGetDataKios($query, $pembiayaanID, $prosesTanamID)
     {
+<<<<<<< HEAD
         $query = DB::connection('mysql')->select("SELECT a.`jumlah`,d.`nama_item`,
         d.`satuan`,
         SUM(a.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
+=======
+        $query = DB::connection('mysql')->select(" SELECT a.`jumlah`,d.`nama_item`,
+        d.`satuan`,
+        SUM(a.jumlah*b.harga) AS harga,
+        a.kesiapan_stok_st,
+        SUM(IF(a.`kesiapan_kegiatan_st`='yes',1,0)) AS kesiapan,
+>>>>>>> abda605bae0b9dd46487033c743ffc886a41a609
         SUM(a.`kesiapan_kegiatan_st`) AS total,
         e.`kios_nama`,e.`kios_id`,
         f.`alamat`,
         a.`kesiapan_stok_date`,
+<<<<<<< HEAD
         a.kesiapan_stok_st
+=======
+>>>>>>> abda605bae0b9dd46487033c743ffc886a41a609
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON a.pembiayaan_rab_id = b.pembiayaan_rab_id
         JOIN master_proses_tanam c ON a.`proses_tanam_id` = c.`proses_tanam_id`
@@ -303,18 +319,19 @@ class AccountOfficer extends Model
     {
         $query = DB::connection('mysql')->select("SELECT b.pembiayaan_id,a.pembiayaan_rab_mingguan_id,a.pembiayaan_rab_id,
         a.kesiapan_kegiatan_st,a.kesiapan_tenaga_kerja_st,a.rencana_kegiatan_st,
-        a.proses_tanam_id,d.petani_id,d.petani_kd,e.lahan_id,
-        e.luas_lahan,f.proses_tanam_nama, a.kesiapan_kegiatan_date,
+        a.proses_tanam_id,d.petani_id,d.petani_kd, e.lahan_id,
+        e.luas_lahan,f.proses_tanam_nama, k.file_name, a.kesiapan_kegiatan_date,
         a.rencana_kegiatan_st,d.`nama_lengkap`,e.`lahan_kd`,d.`petani_kd`,c.`pengajuan_id`,d.`no_telp`,
         d.email,c.`pembiayaan_st`
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON b.pembiayaan_rab_id=a.pembiayaan_rab_id
         JOIN pembiayaan c ON b.pembiayaan_id=c.pembiayaan_id
+        JOIN pembiayaan_files k ON c.`pembiayaan_id` = k.pembiayaan_id
         JOIN pembiayaan_petani d ON d.pembiayaan_id=c.pembiayaan_id
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
-        WHERE a.`rencana_kegiatan_st` IS NOT NULL AND c.`subcluster_id`=:subcluster_id
-        AND c.`cluster_id`= :cluster_id
+        WHERE a.rencana_kegiatan_st IS NOT NULL AND c.`subcluster_id`=:subcluster_id
+        AND c.`cluster_id`=:cluster_id AND persyaratan_id = '0201'
         GROUP BY d.petani_id", [
             "subcluster_id" => $subClusterID,
             "cluster_id" => $clusterID,

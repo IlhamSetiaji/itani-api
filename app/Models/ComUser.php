@@ -12,7 +12,7 @@ class ComUser extends Authenticatable
     use HasFactory, HasApiTokens;
     protected $connection = 'mysql_third';
     protected $table = 'com_user';
-    protected $guarded = ['user_id'];
+    protected $guarded = [];
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     public $timestamps = false;
@@ -40,5 +40,10 @@ class ComUser extends Authenticatable
     public function com_user_sidangkomite()
     {
         return $this->belongsToMany(MasterSidangKomite::class, 'com_user_sidangkomite', 'user_id', 'sidangkomite_id');
+    }
+
+    public function com_user_supir()
+    {
+        return $this->belongsToMany(MasterSupir::class, 'com_user_supir', 'user_id', 'supir_id');
     }
 }

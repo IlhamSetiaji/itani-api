@@ -12,18 +12,18 @@ class Petani extends Model
 
     public function scopePetaniGetRealisasiKegiatan($query, $pembiayaanID)
     {
-        $query = DB::connection('mysql')->select("SELECT SUM(IF(a.`pencairan_st`='yes' AND e.item_rab_id != '32' AND e.group_rab_id!='1',(a.jumlah*b.harga),0)) +
-        SUM(IF(a.`pembayaran_st`='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) + IF(f.nilai_tambahan IS NOT NULL, f.nilai_tambahan,0)
-        AS pembiayaan_terpakai, 
-        e.`nama_item`,a.`jumlah`,b.`harga`,a.`pencairan_date`,
-        SUM(IF(a.`pembayaran_st`='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) AS saprodi,
-        SUM(IF(a.`pencairan_st`='yes' AND b.item_rab_id !=1 AND e.group_rab_id!=1,(a.jumlah*b.harga),0)) AS tenaga, 
+        $query = DB::connection('mysql')->select("SELECT SUM(IF(a.pencairan_st='yes' AND e.group_rab_id!='1',(a.jumlah*b.harga),0)) +
+        SUM(IF(a.pembayaran_st='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) + IF(f.nilai_tambahan IS NOT NULL, f.nilai_tambahan,0)
+        AS pembiayaan_terpakai,
+        e.nama_item,a.jumlah,b.harga,a.pencairan_date,
+        SUM(IF(a.pembayaran_st='yes' AND e.group_rab_id=1,(a.jumlah*b.harga),0)) AS saprodi,
+        SUM(IF(a.pencairan_st='yes' AND b.item_rab_id !=1 AND e.group_rab_id!=1,(a.jumlah*b.harga),0)) AS       tenaga,
         IF(f.nilai_tambahan IS NOT NULL, f.nilai_tambahan,0) AS nilai_tambahan
         FROM pembiayaan_rab_mingguan a
         LEFT JOIN pembiayaan_rab b ON b.pembiayaan_rab_id = a.pembiayaan_rab_id
         LEFT JOIN pembiayaan c ON c.pembiayaan_id = b.pembiayaan_id
         LEFT JOIN master_item_fee d ON d.item_rab_id = b.item_rab_id
-        LEFT JOIN master_item_rab e ON e.`item_rab_id` = b.`item_rab_id`
+        LEFT JOIN master_item_rab e ON e.item_rab_id = b.item_rab_id
         LEFT JOIN pembiayaan_rab_tambahan f ON f.pembiayaan_id = c.pembiayaan_id
         WHERE c.pembiayaan_id = :pembiayaan_id", [
             'pembiayaan_id' => $pembiayaanID,
@@ -42,12 +42,12 @@ class Petani extends Model
 
     public function scopePetaniGetTotalSaldoRekening($query, $petaniID, $pembiayaanID)
     {
-        $query = DB::connection('mysql')->select("SELECT SUM(IF(jenis_transaksi='pencairan mingguan', nilai_transaksi, 0)) - 
-        SUM(IF(jenis_transaksi='saprodi', nilai_transaksi, 0)) - 
+        $query = DB::connection('mysql')->select("SELECT SUM(IF(jenis_transaksi='pencairan mingguan', nilai_transaksi, 0)) -
+        SUM(IF(jenis_transaksi='saprodi', nilai_transaksi, 0)) -
         SUM(IF(jenis_transaksi='fee distribusi', nilai_transaksi, 0)) +
         SUM(IF(jenis_transaksi='pencairan tambahan', nilai_transaksi, 0)) +
-        SUM(IF(jenis_transaksi='gkp', nilai_transaksi, 0)) - 
-        SUM(IF(jenis_transaksi='pelunasan', nilai_transaksi, 0)) - 
+        SUM(IF(jenis_transaksi='gkp', nilai_transaksi, 0)) -
+        SUM(IF(jenis_transaksi='pelunasan', nilai_transaksi, 0)) -
         SUM(IF(jenis_transaksi='jasa angkut', nilai_transaksi, 0)) -
         SUM(IF(jenis_transaksi='penarikan updah', nilai_transaksi, 0))
         AS total_saldo_rekening FROM data_transaksi
@@ -60,11 +60,11 @@ class Petani extends Model
 
     public function scopePetaniGetDataTransaksiPembiayaan($query, $petaniID, $bulan, $tahun)
     {
-        $query = DB::connection('mysql')->select("SELECT * FROM 
+        $query = DB::connection('mysql')->select("SELECT * FROM
         (SELECT petani_id,jenis_transaksi,tanggal_transaksi,'Pencairan Minggu Ini' AS desc_transaksi,SUM(nilai_transaksi) AS nilai_transaksi FROM data_transaksi
         WHERE jenis_transaksi='pencairan mingguan'
         GROUP BY YEAR(tanggal_transaksi),MONTH(tanggal_transaksi),DAY(tanggal_transaksi)
-        UNION 
+        UNION
         SELECT petani_id,jenis_transaksi,tanggal_transaksi,desc_transaksi,nilai_transaksi FROM data_transaksi
         WHERE jenis_transaksi='saprodi'
         UNION
@@ -93,7 +93,7 @@ class Petani extends Model
 
     public function scopePetaniGetImgHasilRekomendasi($query, $pembiayaanKunjunganID)
     {
-        $query = DB::connection('mysql')->select("SELECT file_path, file_name, jenis_foto FROM pembiayaan_foto_rekomendasi  
+        $query = DB::connection('mysql')->select("SELECT file_path, file_name, jenis_foto FROM pembiayaan_foto_rekomendasi
         WHERE pembiayaan_kunjungan_id = :pembiayaan_kunjungan_id", [
             'pembiayaan_kunjungan_id' => $pembiayaanKunjunganID,
         ]);
@@ -102,12 +102,12 @@ class Petani extends Model
 
     public function scopePetaniGetSaldoRekeningPetani($query, $petaniID, $pembiayaanID)
     {
-        $query = DB::connection('mysql')->select("SELECT SUM(IF(a.pencairan_st = 'yes',(a.`jumlah`*b.`harga`),0)) - 
+        $query = DB::connection('mysql')->select("SELECT SUM(IF(a.pencairan_st = 'yes',(a.`jumlah`*b.`harga`),0)) -
         SUM(IF(a.pembayaran_st = 'yes' AND e.group_rab_id = 1,(a.`jumlah`*b.`harga`),0)) +
         SUM(IF(a.pencairan_st = 'yes' AND e.group_rab_id != 1,(a.`jumlah`*b.`harga`),0)) -
         SUM(IF(c.pembiayaan_st = 'finish' AND a.pembayaran_st='yes',(a.jumlah * b.harga),0)) -
-        (IF(f.konfirmasi_date IS NOT NULL,f.fee_distribusi,0)) + 
-        (IF(f.konfirmasi_date IS NOT NULL,f.total_pembelian,0)) - 
+        (IF(f.konfirmasi_date IS NOT NULL,f.fee_distribusi,0)) +
+        (IF(f.konfirmasi_date IS NOT NULL,f.total_pembelian,0)) -
         SUM(IF(a.pembayaran_st = 'yes' AND e.group_rab_id = 1,(((a.`jumlah`*b.`harga`)/100)*g.persentase_item_fee),0))
         AS total_saldo_rekening,
         SUM(IF(a.pencairan_st = 'yes',(a.`jumlah`*b.`harga`),0)) AS pencairan,
@@ -136,7 +136,7 @@ class Petani extends Model
         $query = DB::connection('mysql')->select("SELECT * FROM
         (SELECT c.`pembiayaan_id`,d.petani_id AS petani_id, a.pembayaran_date AS tanggal ,
         e.nama_item AS nama_item, ROUND(b.`harga`*a.`jumlah`) AS total,
-        e.`group_rab_id`AS group_rab_id, 'Saprodi' AS jenis 
+        e.`group_rab_id`AS group_rab_id, 'Saprodi' AS jenis
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON a.`pembiayaan_rab_id` = b.`pembiayaan_rab_id`
         JOIN pembiayaan c ON b.`pembiayaan_id` = c.`pembiayaan_id`
@@ -156,14 +156,14 @@ class Petani extends Model
         JOIN pembiayaan_petani k ON k.`pembiayaan_id` = h.`pembiayaan_id`
         WHERE h.`pembiayaan_id` = :pembiayaan_id AND h.pembiayaan_st='finish'
         UNION
-        SELECT m.pembiayaan_id,l.petani_id,l.mutasi_date AS tanggal, 'GKP' AS nama_item, 
+        SELECT m.pembiayaan_id,l.petani_id,l.mutasi_date AS tanggal, 'GKP' AS nama_item,
         l.total_pembelian AS total, '1' AS group_rab_id ,
         'Pembelian' AS jenis
         FROM panen_penimbangan_hasil l
         JOIN pembiayaan_petani m ON m.petani_id = l.petani_id
         WHERE m.`pembiayaan_id` = :pembiayaan_id
         UNION
-        SELECT o.pembiayaan_id, o.petani_id,n.mutasi_date AS tanggal, 'Angkut' AS nama_item, 
+        SELECT o.pembiayaan_id, o.petani_id,n.mutasi_date AS tanggal, 'Angkut' AS nama_item,
         n.fee_distribusi AS total, '1' AS group_rab_id,
         'Jasa' AS jenis
         FROM panen_penimbangan_hasil n
@@ -190,7 +190,7 @@ class Petani extends Model
         JOIN pembiayaan_petani z ON w.`pembiayaan_id` = z.`pembiayaan_id`
         JOIN master_item_rab ab ON ab.`item_rab_id` = v.`item_rab_id`
         WHERE w.`pembiayaan_id` = :pembiayaan_id) rst
-        WHERE group_rab_id = '1' AND rst.petani_id=:petani_id 
+        WHERE group_rab_id = '1' AND rst.petani_id=:petani_id
         AND rst.pembiayaan_id= :pembiayaan_id
         AND MONTH(rst.tanggal) = :bulan
         AND YEAR(rst.tanggal) = :tahun
@@ -208,7 +208,7 @@ class Petani extends Model
         $query = DB::connection('mysql')->select("SELECT SUM(IF(c.`pencairan_st`='yes',(c.`jumlah`*b.`harga`),0)) AS pelunasan,a.mdd FROM pembiayaan a
         JOIN pembiayaan_rab b ON b.`pembiayaan_id` = a.`pembiayaan_id`
         JOIN pembiayaan_rab_mingguan c ON c.`pembiayaan_rab_id` = b.`pembiayaan_rab_id`
-        WHERE a.pembiayaan_id=:pembiayaan_id 
+        WHERE a.pembiayaan_id=:pembiayaan_id
         AND a.`pembiayaan_st` = 'finish';", [
             'pembiayaan_id' => $pembiayaanID,
         ]);
@@ -227,7 +227,7 @@ class Petani extends Model
 
     public function scopePetaniGetSaldoPetani($query, $petaniID)
     {
-        $query = DB::connection('mysql')->select("SELECT SUM(rst.upah_petani) + 
+        $query = DB::connection('mysql')->select("SELECT SUM(rst.upah_petani) +
         SUM(IF(rst.total_pendapatan_bersih IS NOT NULL,
         (rst.total_pendapatan_bersih),0))
         AS saldo_petani,rst.* FROM(
@@ -257,7 +257,7 @@ class Petani extends Model
         JOIN pembiayaan_petani d ON c.`pembiayaan_id` = d.`pembiayaan_id`
         JOIN master_item_rab e ON e.`item_rab_id` = b.`item_rab_id`
         WHERE d.petani_id=:petani_id AND a.pencairan_st='yes'
-        AND YEAR(a.`pencairan_date`) = :tahun 
+        AND YEAR(a.`pencairan_date`) = :tahun
         AND MONTH(a.`pencairan_date`)= :bulan;", [
             "petani_id" => $petaniID,
             "tahun" => $tahun,
@@ -269,8 +269,8 @@ class Petani extends Model
     public function scopePetaniGetTransaksiSaldoFeeDistribusi($query, $tahun, $bulan, $petaniID)
     {
         $query = DB::connection('mysql')->select("SELECT * FROM panen_penimbangan_hasil
-        WHERE petani_id = :petani_id 
-        AND YEAR(`konfirmasi_date`) = :tahun 
+        WHERE petani_id = :petani_id
+        AND YEAR(`konfirmasi_date`) = :tahun
         AND MONTH(konfirmasi_date)=:bulan", [
             "petani_id" => $petaniID,
             "tahun" => $tahun,
@@ -281,15 +281,15 @@ class Petani extends Model
 
     public function scopePetaniGetPengambilanSaprodiTambahan($query, $pembiayaanRabTambahanID)
     {
-        $query = DB::connection('mysql')->select("SELECT 
+        $query = DB::connection('mysql')->select("SELECT
         a.item_rab_id,
         d.nama_item,
         a.jumlah,
         d.satuan
         FROM pembiayaan_rab_tambahan a
-        JOIN pembiayaan_kunjungan b ON a.pembiayaan_kunjungan_id = b.pembiayaan_kunjungan_id 
+        JOIN pembiayaan_kunjungan b ON a.pembiayaan_kunjungan_id = b.pembiayaan_kunjungan_id
         JOIN pembiayaan c ON c.pembiayaan_id = b.pembiayaan_id
-        JOIN master_item_rab d ON a.item_rab_id = d.item_rab_id 
+        JOIN master_item_rab d ON a.item_rab_id = d.item_rab_id
         where a.pembiayaan_rab_tambahan_id =:pembiayaan_rab_tambahan_id", [
             "pembiayaan_rab_tambahan_id" => $pembiayaanRabTambahanID,
         ]);
@@ -298,16 +298,32 @@ class Petani extends Model
 
     public function scopePetaniPengambilanSaprodiTambahanAll($query, $petaniID, $pembiayaanID)
     {
-        $query = DB::connection('mysql')->select("SELECT 
-        a.item_rab_id,
-        d.nama_item,
-        a.jumlah,
-        d.satuan
-        FROM pembiayaan_rab_tambahan a
-        JOIN pembiayaan_kunjungan b ON a.pembiayaan_kunjungan_id = b.pembiayaan_kunjungan_id 
-        JOIN pembiayaan c ON c.pembiayaan_id = b.pembiayaan_id
-        JOIN master_item_rab d ON a.item_rab_id = d.item_rab_id 
-        where a.pembiayaan_rab_tambahan_id =:pembiayaan_rab_tambahan_id", [
+        $query = DB::connection('mysql')->select("SELECT
+            a.pembiayaan_rab_tambahan_id,
+            a.pembiayaan_kunjungan_id,
+            a.pengambilan_st,
+            b.pembiayaan_id,
+            d.petani_id,
+            d.nama_lengkap,
+            e.lahan_id,
+            g.alamat,
+            b.kios_id,
+            b.kios_nama,
+            a.item_rab_id,
+            f.nama_item,
+            a.jumlah,
+            f.satuan,
+            a.nilai_tambahan
+
+            FROM pembiayaan_rab_tambahan a
+            LEFT JOIN pembiayaan b ON a.pembiayaan_id = b.pembiayaan_id
+            LEFT JOIN pembiayaan_rab c ON b.pembiayaan_id = c.pembiayaan_id
+            LEFT JOIN pembiayaan_petani d ON d.pembiayaan_id = b.pembiayaan_id
+            LEFT JOIN pembiayaan_lahan e ON e.pembiayaan_id = b.pembiayaan_id
+            LEFT JOIN master_item_rab f ON f.item_rab_id = a.item_rab_id
+            JOIN master_kios g ON b.kios_id = g.kios_id
+            WHERE  d.petani_id =:petani_id AND a.pembiayaan_id =:pembiayaan_id
+            GROUP BY a.pembiayaan_rab_tambahan_id", [
             "petani_id" => $petaniID,
             "pembiayaan_id" => $pembiayaanID
         ]);
@@ -377,7 +393,7 @@ class Petani extends Model
     public function scopePetaniGetGeoJsonLahan($query, $pembiayaanLahanID)
     {
         $query = DB::connection('mysql')->select("SELECT ST_ASGEOJSON(geom) AS geojson,
-        st_x(koordinat) AS longitude, st_y(koordinat) AS latitude from 
+        st_x(koordinat) AS longitude, st_y(koordinat) AS latitude from
         pembiayaan_lahan a
         where a.pembiayaan_lahan_id=:pembiayaan_lahan_id", [
             "pembiayaan_lahan_id" => $pembiayaanLahanID,
@@ -387,8 +403,8 @@ class Petani extends Model
 
     public function scopePetaniGetTotalPembiayaan($query, $pembiayaanID)
     {
-        $query = DB::connection('mysql')->select("SELECT IF(pembiayaan_id IS NOT NULL,COUNT(pembiayaan_id),0) AS 
-        totalPembiayaanAktif FROM pembiayaan 
+        $query = DB::connection('mysql')->select("SELECT IF(pembiayaan_id IS NOT NULL,COUNT(pembiayaan_id),0) AS
+        totalPembiayaanAktif FROM pembiayaan
         WHERE `active_st`='yes' AND pembiayaan_id=:pembiayaan_id", [
             "pembiayaan_id" => $pembiayaanID,
         ]);
@@ -421,15 +437,15 @@ class Petani extends Model
 
     public function scopeAoGetJumlahKesiapanTenaga($query, $pembiayaanID, $prosesTanamID)
     {
-        $query = DB::connection('mysql')->select("SELECT 
+        $query = DB::connection('mysql')->select("SELECT
         SUM(IF(a.kesiapan_tenaga_kerja_st='yes',1,0)) AS kesiapan,
         SUM(IF(a.kesiapan_tenaga_kerja_st IS NOT NULL,1,0)) AS total,
         SUM(a.jumlah*b.harga) AS bayaran FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON a.pembiayaan_rab_id = b.pembiayaan_rab_id
         JOIN master_proses_tanam c ON a.proses_tanam_id = c.proses_tanam_id
         JOIN master_item_rab d ON b.item_rab_id = d.item_rab_id
-        WHERE group_rab_id!=1 AND b.`pembiayaan_id`=:pembiayaan_id 
-        AND d.`item_rab_id`!='32'AND 
+        WHERE group_rab_id!=1 AND b.`pembiayaan_id`=:pembiayaan_id
+        AND d.`item_rab_id`!='32'AND
         c.`proses_tanam_id`=:proses_tanam_id", [
             "pembiayaan_id" => $pembiayaanID,
             "proses_tanam_id" => $prosesTanamID,
@@ -446,8 +462,8 @@ class Petani extends Model
         JOIN pembiayaan_rab b ON a.pembiayaan_rab_id = b.pembiayaan_rab_id
         JOIN master_proses_tanam c ON a.proses_tanam_id = c.proses_tanam_id
         JOIN master_item_rab d ON b.item_rab_id = d.item_rab_id
-        WHERE group_rab_id!=1 AND b.`pembiayaan_id`=:pembiayaan_id AND 
-        d.`item_rab_id`!='32'AND 
+        WHERE group_rab_id!=1 AND b.`pembiayaan_id`=:pembiayaan_id AND
+        d.`item_rab_id`!='32'AND
         c.`proses_tanam_id`=:proses_tanam_id", [
             "pembiayaan_id" => $pembiayaanID,
             "proses_tanam_id" => $prosesTanamID,
@@ -459,7 +475,7 @@ class Petani extends Model
     {
         $query = DB::connection('mysql')->select("SELECT a.`jumlah`,d.`nama_item`,
         d.`satuan`,
-        (a.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st, 
+        (a.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
         e.`kios_nama`,e.`kios_id`,
         f.`alamat`,
         a.`kesiapan_stok_date`,
@@ -483,7 +499,7 @@ class Petani extends Model
         $query = DB::connection('mysql')->select("SELECT SUM(IF(hsl.`rencana_kegiatan_st` = 'done',1,0)) AS kegiatan_selesai,
         SUM(IF(hsl.`rencana_kegiatan_st`='process',1,0)) AS kegiatan_on_progress,
         SUM(IF(hsl.`rencana_kegiatan_st`='waiting',1,0)) AS kegiatan_on_belum,
-        SUM(IF(hsl.`rencana_kegiatan_st` IS NOT NULL,1,0)) AS jumlah 
+        SUM(IF(hsl.`rencana_kegiatan_st` IS NOT NULL,1,0)) AS jumlah
         FROM (SELECT a.`rencana_kegiatan_st`
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON b.pembiayaan_rab_id=a.pembiayaan_rab_id
@@ -491,7 +507,7 @@ class Petani extends Model
         JOIN pembiayaan_petani d ON d.pembiayaan_id=c.pembiayaan_id
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
-        WHERE a.`rencana_kegiatan_st` IS NOT NULL and c.subcluster_id=:subcluster_id 
+        WHERE a.`rencana_kegiatan_st` IS NOT NULL and c.subcluster_id=:subcluster_id
         GROUP BY a.proses_tanam_id) hsl;", [
             "subcluster_id" => $subClusterID,
         ]);
@@ -583,7 +599,85 @@ class Petani extends Model
         JOIN pembiayaan_lahan g on a.pembiayaan_id = g.pembiayaan_id
         JOIN pembiayaan h on a.pembiayaan_id = h.pembiayaan_id
         JOIN master_kios i on h.kios_id = i.kios_id
-        where a.petani_id=:petani_id and a.pembiayaan_id=:pembiayaan_id
+        where a.petani_id=:petani_id and a.pembiayaan_id=:pembiayaan_id and e.group_rab_id = '1'
+        -- group by f.proses_tanam_desc
+        order by d.proses_tanam_id asc", [
+            "petani_id" => $petaniID,
+            "pembiayaan_id" => $pembiayaanID
+        ]);
+        return $query;
+    }
+
+    public function scopeGetItemRabByGrub2PetaniPembiayaan($query, $petaniID, $pembiayaanID)
+    {
+        $query = DB::connection('mysql')->select("SELECT d.proses_tanam_id,
+        e.group_rab_id,
+        f.proses_tanam_nama,
+        f.proses_tanam_desc,
+        e.nama_item,
+        e.item_rab_id,
+        d.jumlah,
+        a.petani_id,
+        a.pembiayaan_id,
+        d.periode_kegiatan_start,
+        d.periode_kegiatan_end,
+        d.pembiayaan_rab_mingguan_id,
+        d.kesiapan_kegiatan_st,
+        d.pengambilan_st,
+        g.lahan_id,
+        i.kios_nama,
+        i.alamat,
+        d.kesiapan_stok_st
+        FROM pembiayaan_petani a
+        -- JOIN pembiayaan_petani b on a.pembiayaan_id=b.pembiayaan_id
+        JOIN pembiayaan_rab c ON a.pembiayaan_id=c.pembiayaan_id
+        JOIN pembiayaan_rab_mingguan d ON c.pembiayaan_rab_id=d.pembiayaan_rab_id
+        JOIN master_item_rab e ON c.item_rab_id=e.item_rab_id
+        JOIN master_proses_tanam f ON d.proses_tanam_id=f.proses_tanam_id
+        JOIN pembiayaan_lahan g ON a.pembiayaan_id = g.pembiayaan_id
+        JOIN pembiayaan h ON a.pembiayaan_id = h.pembiayaan_id
+        JOIN master_kios i ON h.kios_id = i.kios_id
+        WHERE a.petani_id=:petani_id AND a.pembiayaan_id=:pembiayaan_id AND  e.`group_rab_id` = '2'
+
+        -- group by f.proses_tanam_desc
+        order by d.proses_tanam_id asc", [
+            "petani_id" => $petaniID,
+            "pembiayaan_id" => $pembiayaanID
+        ]);
+        return $query;
+    }
+
+    public function scopeGetItemRabByGrub3PetaniPembiayaan($query, $petaniID, $pembiayaanID)
+    {
+        $query = DB::connection('mysql')->select("SELECT d.proses_tanam_id,
+        e.group_rab_id,
+        f.proses_tanam_nama,
+        f.proses_tanam_desc,
+        e.nama_item,
+        e.item_rab_id,
+        d.jumlah,
+        a.petani_id,
+        a.pembiayaan_id,
+        d.periode_kegiatan_start,
+        d.periode_kegiatan_end,
+        d.pembiayaan_rab_mingguan_id,
+        d.kesiapan_kegiatan_st,
+        d.pengambilan_st,
+        g.lahan_id,
+        i.kios_nama,
+        i.alamat,
+        d.kesiapan_stok_st
+        FROM pembiayaan_petani a
+        -- JOIN pembiayaan_petani b on a.pembiayaan_id=b.pembiayaan_id
+        JOIN pembiayaan_rab c ON a.pembiayaan_id=c.pembiayaan_id
+        JOIN pembiayaan_rab_mingguan d ON c.pembiayaan_rab_id=d.pembiayaan_rab_id
+        JOIN master_item_rab e ON c.item_rab_id=e.item_rab_id
+        JOIN master_proses_tanam f ON d.proses_tanam_id=f.proses_tanam_id
+        JOIN pembiayaan_lahan g ON a.pembiayaan_id = g.pembiayaan_id
+        JOIN pembiayaan h ON a.pembiayaan_id = h.pembiayaan_id
+        JOIN master_kios i ON h.kios_id = i.kios_id
+        WHERE a.petani_id=:petani_id AND a.pembiayaan_id=:pembiayaan_id AND  e.`group_rab_id` = '3'
+
         -- group by f.proses_tanam_desc
         order by d.proses_tanam_id asc", [
             "petani_id" => $petaniID,
@@ -603,11 +697,11 @@ class Petani extends Model
 
     public function scopePetaniGetPembiayaan($query, $petaniID)
     {
-        $query = DB::connection('mysql')->select("SELECT a.pembiayaan_id, 
+        $query = DB::connection('mysql')->select("SELECT a.pembiayaan_id,
         round(sum(luas_lahan/10000),5) as totalLuasLahan,
         (a.nilai_pembiayaan) as totalNilaiPembiayaan,
-        COUNT(active_st='yes') as totalPembiayaanAktif 
-        FROM pembiayaan a 
+        COUNT(active_st='yes') as totalPembiayaanAktif
+        FROM pembiayaan a
         JOIN pembiayaan_petani b on a.pembiayaan_id=b.pembiayaan_id
         where b.petani_id=:petani_id and active_st='yes'", [
             "petani_id" => $petaniID,
@@ -633,8 +727,8 @@ class Petani extends Model
 
     public function scopePetaniGetKunjunganLahan($query, $pembiayaanID)
     {
-        $query = DB::connection('mysql')->select("SELECT a.*, 
-        b.nama_lengkap FROM pembiayaan_kunjungan a
+        $query = DB::connection('mysql')->select("SELECT a.*,
+        b.nama_lengkap, b.image_file_name FROM pembiayaan_kunjungan a
         LEFT JOIN ipangan_sf_v1_db_demo.pendamping b ON a.pendamping_id=b.pendamping_id
         WHERE pembiayaan_id=:pembiayaan_id", [
             "pembiayaan_id" => $pembiayaanID,
@@ -655,6 +749,107 @@ class Petani extends Model
         WHERE b.petani_id=:petani_id
         GROUP BY lahan_id", [
             "petani_id" => $petaniID,
+        ]);
+        return $query;
+    }
+
+    public function scopePetaniGetJadwal($query, $pembiayaanID)
+    {
+        $query = DB::connection('mysql')->select("SELECT DISTINCT(b.proses_tanam_id),b.pembiayaan_rab_mingguan_id,
+                c.proses_tanam_nama,b.periode_kegiatan_start,b.periode_kegiatan_end, d.`file_path`,d.`file_name`,
+                b.kesiapan_kegiatan_st,b.rencana_kegiatan_st
+                FROM pembiayaan_rab a
+                JOIN pembiayaan_rab_mingguan b ON a.pembiayaan_rab_id=b.pembiayaan_rab_id
+                JOIN master_proses_tanam c ON b.proses_tanam_id=c.proses_tanam_id
+                LEFT JOIN `pembiayaan_foto_kegiatan_petani` d ON d.pembiayaan_id=a.pembiayaan_id
+                AND d.`proses_tanam_id`=b.`proses_tanam_id`
+                WHERE a.pembiayaan_id=:pembiayaan_id
+                GROUP BY b.proses_tanam_id ASC", [
+
+            "pembiayaan_id" => $pembiayaanID,
+        ]);
+        return $query;
+    }
+
+
+
+    public function scopePetaniGetHasilPanen($query, $pembiayaanID)
+    {
+        $query = DB::connection('mysql')->select("SELECT a.berat_gkp
+            AS berat_timbangan_lahan,
+            a.mdd AS waktu_timbangan_lahan,
+            e.berat_hasil_timbang AS berat_timbang_pabrik,
+            e.mdd AS waktu_timbang_pabrik,
+            f.supir_id,
+            f.truk_nopol,
+            g.pabrik_id,
+            h.alamat AS alamat_pabrik,
+            SUM(j.jumlah*i.harga) AS pascapanen,
+            (SUM(j.jumlah*i.harga) + e.pendapatan_bersih_petani) AS pendapatan_bersih_petani,
+            e.fee_distribusi AS potongan_jasa_truk,
+            e.`total_pembelian` AS pendapatan_kotor
+            FROM panen_pengangkutan_hasil a
+            LEFT JOIN pembiayaan_petani b ON a.petani_id=b.petani_id
+            LEFT JOIN pembiayaan c ON b.pembiayaan_id=c.pembiayaan_id
+            LEFT JOIN pembiayaan_lahan d ON d.lahan_id=a.lahan_id
+            LEFT JOIN panen_penimbangan_hasil e ON e.petani_id=a.petani_id
+            LEFT JOIN panen_pengangkutan f ON f.pengangkutan_id=a.pengangkutan_id
+            LEFT JOIN panen_penimbangan g ON g.penimbangan_id=e.penimbangan_id
+            LEFT JOIN master_pabrik h ON g.pabrik_id=h.pabrik_id
+            JOIN pembiayaan_rab i ON c.pembiayaan_id = i.pembiayaan_id
+	        JOIN pembiayaan_rab_mingguan j ON i.pembiayaan_rab_id = j.pembiayaan_rab_id
+	        JOIN master_item_rab k ON i.item_rab_id = k.item_rab_id
+            WHERE b.pembiayaan_id=:pembiayaan_id AND c.active_st='yes' AND j.proses_tanam_id =18", [
+            "pembiayaan_id" => $pembiayaanID,
+        ]);
+        return $query;
+    }
+
+    public function scopePetaniGetTransaksiSaldoPetani($query, $tahun, $bulan, $petaniID)
+    {
+        $query = DB::connection('mysql')->select("SELECT a.`periode_kegiatan_start`,
+        a.`periode_kegiatan_end`,ROUND(b.`harga`*a.`jumlah`) AS upah, c.nama_item,
+        a.`pencairan_date`,
+        a.kesiapan_tenaga_kerja_date,a.`pencairan_st`,
+        a.`pembayaran_date` FROM pembiayaan_rab_mingguan a
+        JOIN pembiayaan_rab b ON a.`pembiayaan_rab_id` = b.`pembiayaan_rab_id`
+        JOIN master_item_rab c ON b.`item_rab_id` = c.`item_rab_id`
+        JOIN pembiayaan_petani d ON b.`pembiayaan_id` = d.`pembiayaan_id`
+        WHERE d.petani_id= :petani_id AND c.`item_rab_id` != 32 AND
+        a.pencairan_st='yes' AND c.group_rab_id != 1
+        AND YEAR(pencairan_date)= :tahun AND MONTH(pencairan_date)= :bulan", [
+            "tahun" => $tahun,
+            "bulan" => $bulan,
+            "petani_id" => $petaniID,
+        ]);
+        return $query;
+    }
+
+
+    public function scopeGetDataPhoto($query, $petaniID)
+    {
+        $query = DB::connection('mysql_second')->select("SELECT a.petani_id, b.file_name, b.file_path FROM
+           pendataan_petani a JOIN pendataan_petani_files b ON a.`petani_id` = b.`petani_id`
+            WHERE a.petani_id =:petani_id AND b.persyaratan_id = 0201", [
+            'petani_id' => $petaniID,
+        ]);
+        return $query;
+    }
+
+    public function scopePetaniGetPetaniLahanShow($query, $lahanID)
+    {
+        $query = DB::connection('mysql')->select("SELECT a.lahan_id,
+                    a.nama_pemilik,
+                    b.nama_kelompok_tani,
+                    a.blok_lahan_id,
+                    a.alamat,
+                    a.luas_lahan,
+                    a.pembiayaan_id
+                    from pembiayaan_lahan a
+                    join pembiayaan_petani b on a.pembiayaan_id = b.pembiayaan_id
+                    where a.lahan_id=:lahan_id
+                    group by lahan_id", [
+            'lahan_id' => $lahanID,
         ]);
         return $query;
     }

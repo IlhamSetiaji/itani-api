@@ -12,6 +12,6 @@ class Rab extends Model
     protected $table = 'rab';
     protected $guarded = ['rab_id'];
     protected $primaryKey = 'rab_id';
-    public $incrementing = false;
+    // public $incrementing = false;
     public $timestamps = false;
 }

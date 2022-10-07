@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\SupirController;
 use App\Http\Controllers\PetaniController;
 use App\Http\Controllers\AgronomisController;
 use App\Http\Controllers\PembiayaanController;
@@ -22,7 +23,11 @@ use App\Http\Controllers\SmartFarmingMobileAOController;
 */
 
 Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('register', [AuthController::class, 'register'])->name('register');
+Route::post('/account/{userID}/update', [AuthController::class, 'update']);
 Route::get('change-password', [TestController::class, 'insertPassword']);
+Route::get('/get/{userID}/user-data', [AuthController::class, 'getDataUser']);
+Route::post('/insert/bulk/rab', [TestController::class, 'insertBulkRab']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
@@ -43,51 +48,113 @@ Route::prefix('smartfarming')->group(function () {
     Route::get('/kelurahan/by_kecamatan', [SmartFarmingMobileAOController::class, 'getKelurahanByKecamatan']);
     Route::post('/lahan', [SmartFarmingMobileAOController::class, 'postLahan']);
 });
+
+Route::prefix('supir')->group(function () {
+    Route::get('/get/id/petani', [SupirController::class, 'supirGetPetaniAktif']);
+    Route::get('/get/data/dashboard/{supirID}', [SupirController::class, 'supirGetDataDashboard']);
+    Route::get('/get/pengangkutan/aktif/{supirID}', [SupirController::class, 'supirGetPengangkutanAktif']);
+    Route::get('/get/data/akun/{userID}', [SupirController::class, 'supirGetDataAkun']);
+    Route::get('/get/pengangkutan/terkirim/{supirID}', [SupirController::class, 'supirGetPengangkutanTerkirim']);
+    Route::get('/detail/pengangkutan/terkirim/{pengankutanID}', [SupirController::class, 'supirGetDetailPengangkutanTerkirim']);
+    Route::get('/get/data/truk', [SupirController::class, 'supirGetDataTruk']);
+});
+
+Route::prefix('ipangan')->group(function () {
+    Route::prefix('agronomis')->group(function () {
+        Route::get('/total/rab/tambahan/{pembiayaan_id}', [AgronomisController::class, 'agronomisGetRabTambahan']);
+        Route::get('/img/hasil/rekomendasi/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgHasilRekomendasi']);
+        Route::get('/dana/cadangan/{pembiayaan_id}/{item_rab_id}', [AgronomisController::class, 'agronomisGetDanaCadangan']);
+        Route::get('/harga/item/rab/{item_rab_id}', [AgronomisController::class, 'agronomisGetHargaItemRab']);
+        Route::get('/total/luas/lahan/{pendamping_id}', [AgronomisController::class, 'agronomisTotalLahan']);
+        Route::get('/data/pendamping/{user_id}', [AgronomisController::class, 'agronomisGetPendampingId']);
+        Route::get('/jadwal/kegiatan/mingguan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisJadwalKegiatanMingguan']);
+        Route::get('/get/checkpoint/permintaan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetCheckpointPermintaan']);
+        Route::get('/img/permintaan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgPermintaan']);
+        Route::get('/get/penugasan/riwayat/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPenugasan']);
+        Route::get('/get/penugasan/aktif/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPenugasan']);
+        Route::get('/get/permintaan/riwayat/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPermintaan']);
+        Route::get('/get/permintaan/aktif/{pendamping_id}', [AgronomisController::class, 'agronomisGetPermintaan']);
+        Route::get('/data/testimoni/{pendamping_id}', [AgronomisController::class, 'agronomisGetTestimoni']);
+        Route::get('/data/akun/{pendamping_id}', [AgronomisController::class, 'agronomisGetDataAkun']);
+        Route::get('/data/dashboard/{pendamping_id}', [AgronomisController::class, 'agronomisDataDashboard']);
+        Route::get('/laporan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisLaporanPenugasanKunjunganRiwayat']);
+        Route::get('/hasil/saprodi/tambahan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetSaprodiTambahanPenugasan']); // Ini masih error karena di table pembiayaan_rab_tambahan tidak terdapat FK item_rab_id dan kolom jumlah
+        Route::get('/get/img/laporan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgLaporanPenugasan']);
+        // Route get saprodi tambahan ambigu, karena cuma ada welcome tanpa code di action fusio
+        Route::get('/get/img/laporan/permintaan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgLaporanPenugasan']);
+        Route::get('/detail/permintaan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetDetailPermintaan']);
+        Route::get('/get/checkpoint/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetCheckpointPenugasan']);
+        Route::get('/img/penugasan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgPenugasan']);
+        Route::get('/get/data/itemsaprodi', [AgronomisController::class, 'agronomisGetDataItemSaprodi']);
+        Route::get('/get/data/bencana', [AgronomisController::class, 'agronomisGetDataBencana']);
+        Route::get('/get/data/hama', [AgronomisController::class, 'agronomisGetDataHama']);
+        Route::get('/get/data/penyakit', [AgronomisController::class, 'agronomisGetDataPenyakit']);
+        Route::put('/update/dana/cadangan/{pembiayaan_id}/{item_rab_id}', [AgronomisController::class, 'agronomisUpdateDanaCadangan']);
+        Route::delete('/del/hasil/rab/tambahan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
+        Route::delete('/del/hasil/saprodi/tambahan/permintaan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
+    });
+});
+
+/* Route::prefix('petani')->group(
+    function () {
+        Route::get('/get/jadwal/{pembiayaanID}', [PetaniController::class, 'petaniGetJadwal']);
+        Route::get('/get/hasilpanen/{pembiayaanID}', [PetaniController::class, 'petaniGetHasilPanen']);
+        Route::get('/get/saprodi/pengambilan/grub2/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup2']);
+        Route::get('/get/saprodi/pengambilan/grub3/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup3']);
+    }
+); */
+
 // Route::get('/',[PembiayaanController::class,'getLahanBysubclusterBysubcluster']);
+Route::post('/ipangan/agronomis/add/img/lahan', [AgronomisController::class, 'agronomisAddImageLahan']);
 Route::post('/ipangan/petani/post/permintaan/kunjungan', [TestController::class, 'petaniPostPermintaanKunjungan']);
+Route::post('/ipangan/petani/post/penilaiankunjungan/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKesanKunjunganLahan']);
+Route::post('/ipangan/petani/post/konfirmasi/kegiatanrekomendasi/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKegiatanRekomendasi']);
 Route::post('/ipangan/agronomis/laporan/permintaan/aktif/{pembiayaan_kunjungan_id}', [TestController::class, 'agronomisLaporanPermintaanKunjungan']);
 Route::post('/ipangan/agronomis/rab/tambahan', [TestController::class, 'agronomisAddRabTambahan']);
 Route::post('/smartfarming/verifikasi_kegiatan/sidangkomite_mingguan/{pembiayaanID}/{pengajuanID}/{prosesTanamID}', [TestController::class, 'postSidangKomite']);
 Route::post('/smartfarming/verifikasi_kegiatan/sidangkomite_tambahan/{pembiayaanID}/{pengajuanID}', [TestController::class, 'postSidangKomiteTambahan']);
 Route::post('/ipangan/supir/add/pengangkutan', [TestController::class, 'insertPengangkutan']);
+Route::post('/ipangan/supir/update/pengangkutan', [TestController::class, 'updatePengangkutan']);
 Route::post('/ipangan/supir/add/hasil/panen', [TestController::class, 'addHasilPanen']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/', [PembiayaanController::class, 'getLahanBysubclusterBysubcluster']);
     Route::get('/rencana', [PembiayaanController::class, 'getRencanaKegiatan']);
     Route::prefix('ipangan')->group(function () {
-        Route::prefix('agronomis')->group(function () {
-            Route::get('/total/rab/tambahan/{pembiayaan_id}', [AgronomisController::class, 'agronomisGetRabTambahan']);
-            Route::get('/img/hasil/rekomendasi/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgHasilRekomendasi']);
-            Route::get('/dana/cadangan/{pembiayaan_id}/{item_rab_id}', [AgronomisController::class, 'agronomisGetDanaCadangan']);
-            Route::get('/harga/item/rab/{item_rab_id}', [AgronomisController::class, 'agronomisGetHargaItemRab']);
-            Route::get('/total/luas/lahan/{pendamping_id}', [AgronomisController::class, 'agronomisTotalLahan']);
-            Route::get('/data/pendamping/{user_id}', [AgronomisController::class, 'agronomisGetPendampingId']);
-            Route::get('/jadwal/kegiatan/mingguan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisJadwalKegiatanMingguan']);
-            Route::get('/get/checkpoint/permintaan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetCheckpointPermintaan']);
-            Route::get('/img/permintaan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgPermintaan']);
-            Route::get('/get/penugasan/riwayat/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPenugasan']);
-            Route::get('/get/penugasan/aktif/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPenugasan']);
-            Route::get('/get/permintaan/riwayat/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPermintaan']);
-            Route::get('/get/permintaan/aktif/{pendamping_id}', [AgronomisController::class, 'agronomisGetPermintaan']);
-            Route::get('/data/testimoni/{pendamping_id}', [AgronomisController::class, 'agronomisGetTestimoni']);
-            Route::get('/data/akun/{pendamping_id}', [AgronomisController::class, 'agronomisGetDataAkun']);
-            Route::get('/data/dashboard/{pendamping_id}', [AgronomisController::class, 'agronomisDataDashboard']);
-            Route::get('/laporan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisLaporanPenugasanKunjunganRiwayat']);
-            Route::get('/hasil/saprodi/tambahan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetSaprodiTambahanPenugasan']); // Ini masih error karena di table pembiayaan_rab_tambahan tidak terdapat FK item_rab_id dan kolom jumlah
-            Route::get('/get/img/laporan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgLaporanPenugasan']);
-            // Route get saprodi tambahan ambigu, karena cuma ada welcome tanpa code di action fusio
-            Route::get('/get/img/laporan/permintaan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgLaporanPenugasan']);
-            Route::get('/detail/permintaan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetDetailPermintaan']);
-            Route::get('/get/checkpoint/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetCheckpointPenugasan']);
-            Route::get('/img/penugasan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgPenugasan']);
-            Route::get('/get/data/itemsaprodi', [AgronomisController::class, 'agronomisGetDataItemSaprodi']);
-            Route::get('/get/data/bencana', [AgronomisController::class, 'agronomisGetDataBencana']);
-            Route::get('/get/data/hama', [AgronomisController::class, 'agronomisGetDataHama']);
-            Route::get('/get/data/penyakit', [AgronomisController::class, 'agronomisGetDataPenyakit']);
-            Route::put('/update/dana/cadangan/{pembiayaan_id}/{item_rab_id}', [AgronomisController::class, 'agronomisUpdateDanaCadangan']);
-            Route::delete('/del/hasil/rab/tambahan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
-            Route::delete('/del/hasil/saprodi/tambahan/permintaan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
-        });
+        // Route::prefix('agronomis')->group(function () {
+        //     Route::get('/total/rab/tambahan/{pembiayaan_id}', [AgronomisController::class, 'agronomisGetRabTambahan']);
+        //     Route::get('/img/hasil/rekomendasi/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgHasilRekomendasi']);
+        //     Route::get('/dana/cadangan/{pembiayaan_id}/{item_rab_id}', [AgronomisController::class, 'agronomisGetDanaCadangan']);
+        //     Route::get('/harga/item/rab/{item_rab_id}', [AgronomisController::class, 'agronomisGetHargaItemRab']);
+        //     Route::get('/total/luas/lahan/{pendamping_id}', [AgronomisController::class, 'agronomisTotalLahan']);
+        //     Route::get('/data/pendamping/{user_id}', [AgronomisController::class, 'agronomisGetPendampingId']);
+        //     Route::get('/jadwal/kegiatan/mingguan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisJadwalKegiatanMingguan']);
+        //     Route::get('/get/checkpoint/permintaan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetCheckpointPermintaan']);
+        //     Route::get('/img/permintaan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgPermintaan']);
+        //     Route::get('/get/penugasan/riwayat/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPenugasan']);
+        //     Route::get('/get/penugasan/aktif/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPenugasan']);
+        //     Route::get('/get/permintaan/riwayat/{pendamping_id}', [AgronomisController::class, 'agronomisGetRiwayatPermintaan']);
+        //     Route::get('/get/permintaan/aktif/{pendamping_id}', [AgronomisController::class, 'agronomisGetPermintaan']);
+        //     Route::get('/data/testimoni/{pendamping_id}', [AgronomisController::class, 'agronomisGetTestimoni']);
+        //     Route::get('/data/akun/{pendamping_id}', [AgronomisController::class, 'agronomisGetDataAkun']);
+        //     Route::get('/data/dashboard/{pendamping_id}', [AgronomisController::class, 'agronomisDataDashboard']);
+        //     Route::get('/laporan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisLaporanPenugasanKunjunganRiwayat']);
+        //     Route::get('/hasil/saprodi/tambahan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetSaprodiTambahanPenugasan']); // Ini masih error karena di table pembiayaan_rab_tambahan tidak terdapat FK item_rab_id dan kolom jumlah
+        //     Route::get('/get/img/laporan/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgLaporanPenugasan']);
+        //     // Route get saprodi tambahan ambigu, karena cuma ada welcome tanpa code di action fusio
+        //     Route::get('/get/img/laporan/permintaan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgLaporanPenugasan']);
+        //     Route::get('/detail/permintaan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetDetailPermintaan']);
+        //     Route::get('/get/checkpoint/penugasan/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetCheckpointPenugasan']);
+        //     Route::get('/img/penugasan/aktif/{pembiayaan_kunjungan_id}', [AgronomisController::class, 'agronomisGetImgPenugasan']);
+        //     Route::get('/get/data/itemsaprodi', [AgronomisController::class, 'agronomisGetDataItemSaprodi']);
+        //     Route::get('/get/data/bencana', [AgronomisController::class, 'agronomisGetDataBencana']);
+        //     Route::get('/get/data/hama', [AgronomisController::class, 'agronomisGetDataHama']);
+        //     Route::get('/get/data/penyakit', [AgronomisController::class, 'agronomisGetDataPenyakit']);
+        //     Route::put('/update/dana/cadangan/{pembiayaan_id}/{item_rab_id}', [AgronomisController::class, 'agronomisUpdateDanaCadangan']);
+        //     Route::delete('/del/hasil/rab/tambahan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
+        //     Route::delete('/del/hasil/saprodi/tambahan/permintaan/{pembiayaan_rab_tambahan_id}', [AgronomisController::class, 'agronomisDelRabTambahan']);
+        // });
+
+
         Route::prefix('ao')->group(function () {
             Route::get('/get/monitoring/pelaksanaan/{petani_id}', [AccountOfficerController::class, 'aoGetMonitoringPelaksanaan']);
             Route::get('/get/monitoring/pencairan/jumlah/{petani_id}', [AccountOfficerController::class, 'aoGetMonitoringPelaksanaan']);
@@ -160,6 +227,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/get/pembiayaan/aktif/{pembiayaan_id}', [PetaniController::class, 'petaniGetPembiayaanAktif']);
             Route::get('/kunjungan/lahan/{pembiayaan_id}', [PetaniController::class, 'petaniGetKunjunganLahan']);
             Route::get('/get/lahan/all/{petani_id}', [PetaniController::class, 'petaniGetLahan']);
+            Route::get('/get/jadwal/{pembiayaanID}', [PetaniController::class, 'petaniGetJadwal']);
+            Route::get('/get/hasilpanen/{pembiayaanID}', [PetaniController::class, 'petaniGetHasilPanen']);
+            Route::get('/get/saprodi/pengambilan/grub2/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup2']);
+            Route::get('/get/saprodi/pengambilan/grub3/{petaniID}/{pembiayaanID}', [PetaniController::class, 'petaniPengambilanSaprodiGrup3']);
+            Route::get('/get/rekening/traksaksi/saldopetani/{tahun}/{bulan}/{petaniID}', [PetaniController::class, 'petaniGetTransaksiSaldoPetani']);
+            Route::get('/get/data/photo/{petaniID}', [PetaniController::class, 'getDataPhoto']);
+            Route::get('/lahan/show/{lahaniID}', [PetaniController::class, 'getLahanShow']);
+            // Route::post('/post/penilaiankunjungan/{pembiayaan_kunjungan_id}', [PetaniController::class, 'petaniUpdateKesanKunjunganLahan']);
         });
     });
 });

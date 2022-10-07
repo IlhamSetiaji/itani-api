@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'agronomis' => \App\Http\Middleware\AgronomisMiddleware::class,
         'ao' => \App\Http\Middleware\AccountOfficerMiddleware::class,
         'petani' => \App\Http\Middleware\PetaniMiddleware::class,
+        'supir' => \App\Http\Middleware\SupirMiddelware::class,
     ];
 }
