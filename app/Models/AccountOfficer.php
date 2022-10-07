@@ -154,11 +154,7 @@ class AccountOfficer extends Model
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
         JOIN master_item_rab g ON g.item_rab_id = b.item_rab_id
-<<<<<<< HEAD
-        WHERE a.`pembayaran_st` IS NOT NULL AND d.petani_id=:petani_id AND g.item_rab_id != '32'
-=======
         WHERE a.`pembayaran_st` IS NOT NULL AND d.petani_id=:petani_id AND g.item_rab_id != '32' AND  k.`persyaratan_id` = '0201'
->>>>>>> abda605bae0b9dd46487033c743ffc886a41a609
         GROUP BY b.pembiayaan_id,a.proses_tanam_id", [
             'petani_id' => $petaniID,
         ]);
@@ -219,25 +215,15 @@ class AccountOfficer extends Model
 
     public function scopeAoGetDataKios($query, $pembiayaanID, $prosesTanamID)
     {
-<<<<<<< HEAD
-        $query = DB::connection('mysql')->select("SELECT a.`jumlah`,d.`nama_item`,
-        d.`satuan`,
-        SUM(a.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
-=======
         $query = DB::connection('mysql')->select(" SELECT a.`jumlah`,d.`nama_item`,
         d.`satuan`,
         SUM(a.jumlah*b.harga) AS harga,
         a.kesiapan_stok_st,
         SUM(IF(a.`kesiapan_kegiatan_st`='yes',1,0)) AS kesiapan,
->>>>>>> abda605bae0b9dd46487033c743ffc886a41a609
         SUM(a.`kesiapan_kegiatan_st`) AS total,
         e.`kios_nama`,e.`kios_id`,
         f.`alamat`,
-        a.`kesiapan_stok_date`,
-<<<<<<< HEAD
-        a.kesiapan_stok_st
-=======
->>>>>>> abda605bae0b9dd46487033c743ffc886a41a609
+        a.`kesiapan_stok_date`
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON a.pembiayaan_rab_id = b.pembiayaan_rab_id
         JOIN master_proses_tanam c ON a.`proses_tanam_id` = c.`proses_tanam_id`
