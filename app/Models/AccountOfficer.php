@@ -43,7 +43,7 @@ class AccountOfficer extends Model
 
     public function scopeAoGetKiosbyClusterAndSubClusterId($query, $clusterID, $subClusterID)
     {
-        $query = DB::connection('mysql')->select("SELECT COUNT(kios_id) AS 'jumlah_semua', 
+        $query = DB::connection('mysql')->select("SELECT COUNT(kios_id) AS 'jumlah_semua',
         (SELECT COUNT(a.kios_id) AS 'jumlah_satuan' FROM master_kios a
         INNER JOIN (
         SELECT COUNT(kios_id), kios_id FROM pembiayaan
@@ -95,7 +95,7 @@ class AccountOfficer extends Model
     {
         $query = DB::connection('mysql')->select("SELECT SUM(IF(hsl.`persetujuan_st` = 'yes',1,0)) AS sudah_disetujui,
         SUM(IF(hsl.`persetujuan_st`='no',1,0)) AS belum_disetujui,
-        SUM(IF(hsl.`persetujuan_st` IS NOT NULL,1,0)) AS jumlah 
+        SUM(IF(hsl.`persetujuan_st` IS NOT NULL,1,0)) AS jumlah
         FROM (SELECT a.`persetujuan_st`FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON b.pembiayaan_rab_id=a.pembiayaan_rab_id
         JOIN pembiayaan c ON b.pembiayaan_id=c.pembiayaan_id
@@ -123,7 +123,7 @@ class AccountOfficer extends Model
 
     public function scopeAoGetKiosBySubclusterId($query, $subClusterID)
     {
-        $query = DB::connection('mysql')->select("SELECT COUNT(kios_id) AS 'jumlah_semua', 
+        $query = DB::connection('mysql')->select("SELECT COUNT(kios_id) AS 'jumlah_semua',
         (SELECT COUNT(a.kios_id) AS 'jumlah_satuan' FROM master_kios a
         INNER JOIN (
         SELECT COUNT(kios_id), kios_id FROM pembiayaan
@@ -152,7 +152,7 @@ class AccountOfficer extends Model
         JOIN pembiayaan_petani d ON d.pembiayaan_id=c.pembiayaan_id
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
-        JOIN master_item_rab g ON g.item_rab_id = b.item_rab_id 
+        JOIN master_item_rab g ON g.item_rab_id = b.item_rab_id
         WHERE a.`pembayaran_st` IS NOT NULL AND d.petani_id=:petani_id AND g.item_rab_id != '32'
         GROUP BY b.pembiayaan_id,a.proses_tanam_id", [
             'petani_id' => $petaniID,
@@ -214,12 +214,14 @@ class AccountOfficer extends Model
 
     public function scopeAoGetDataKios($query, $pembiayaanID, $prosesTanamID)
     {
-        $query = DB::connection('mysql')->select("SELECT b.`jumlah`,d.`nama_item`,d.`satuan`,
-        (b.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
-        SUM(IF(a.`kesiapan_kegiatan_st`='yes',1,0)) AS kesiapan,
-        SUM(a.`kesiapan_kegiatan_st`) AS total, 
+        $query = DB::connection('mysql')->select("SELECT a.`jumlah`,d.`nama_item`,
+        d.`satuan`,
+        SUM(a.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
+        SUM(a.`kesiapan_kegiatan_st`) AS total,
         e.`kios_nama`,e.`kios_id`,
-        f.`alamat`,a.`kesiapan_stok_date`
+        f.`alamat`,
+        a.`kesiapan_stok_date`,
+        a.kesiapan_stok_st
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON a.pembiayaan_rab_id = b.pembiayaan_rab_id
         JOIN master_proses_tanam c ON a.`proses_tanam_id` = c.`proses_tanam_id`
@@ -238,7 +240,7 @@ class AccountOfficer extends Model
     {
         $query = DB::connection('mysql')->select("SELECT a.`jumlah`,d.`nama_item`,
         d.`satuan`,
-        (a.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st, 
+        (a.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
         e.`kios_nama`,e.`kios_id`,
         f.`alamat`,
         a.`kesiapan_stok_date`,
@@ -262,7 +264,7 @@ class AccountOfficer extends Model
         $query = DB::connection('mysql')->select("SELECT SUM(IF(hsl.`rencana_kegiatan_st` = 'done',1,0)) AS kegiatan_selesai,
         SUM(IF(hsl.`rencana_kegiatan_st`='process',1,0)) AS kegiatan_on_progress,
         SUM(IF(hsl.`rencana_kegiatan_st`='waiting',1,0)) AS kegiatan_on_belum,
-        SUM(IF(hsl.`rencana_kegiatan_st` IS NOT NULL,1,0)) AS jumlah 
+        SUM(IF(hsl.`rencana_kegiatan_st` IS NOT NULL,1,0)) AS jumlah
         FROM (SELECT a.`rencana_kegiatan_st`
         FROM pembiayaan_rab_mingguan a
         JOIN pembiayaan_rab b ON b.pembiayaan_rab_id=a.pembiayaan_rab_id
@@ -270,7 +272,7 @@ class AccountOfficer extends Model
         JOIN pembiayaan_petani d ON d.pembiayaan_id=c.pembiayaan_id
         JOIN pembiayaan_lahan e ON e.pembiayaan_id=c.pembiayaan_id
         JOIN master_proses_tanam f ON a.proses_tanam_id = f.proses_tanam_id
-        WHERE a.`rencana_kegiatan_st` IS NOT NULL and c.subcluster_id=:subcluster_id 
+        WHERE a.`rencana_kegiatan_st` IS NOT NULL and c.subcluster_id=:subcluster_id
         GROUP BY a.proses_tanam_id) hsl", [
             'subcluster_id' => $subClusterID,
         ]);
@@ -325,7 +327,7 @@ class AccountOfficer extends Model
         $query = DB::connection('mysql')->select("SELECT b.`jumlah`,d.`nama_item`,d.`satuan`,
         (b.jumlah*b.`harga`) AS harga,a.kesiapan_stok_st,
         SUM(IF(a.`kesiapan_stok_st`='yes',1,0)) AS kesiapan,
-        SUM(a.`kesiapan_stok_st` IS NOT NULL) AS total, 
+        SUM(a.`kesiapan_stok_st` IS NOT NULL) AS total,
         e.`kios_nama`,e.`kios_id`,
         f.`alamat`,a.`kesiapan_stok_date`
         FROM pembiayaan_rab_mingguan a
@@ -356,8 +358,8 @@ class AccountOfficer extends Model
         JOIN pembiayaan c ON c.pembiayaan_id = b.pembiayaan_id
         JOIN pembiayaan_lahan d ON c.pembiayaan_id = d.pembiayaan_id
         JOIN pembiayaan_petani e ON c.pembiayaan_id = e.pembiayaan_id
-        WHERE b.pembiayaan_id=:pembiayaan_id AND 
-        a.proses_tanam_id=:proses_tanam_id 
+        WHERE b.pembiayaan_id=:pembiayaan_id AND
+        a.proses_tanam_id=:proses_tanam_id
         GROUP BY a.proses_tanam_id", [
             "pembiayaan_id" => $pembiayaanID,
             "proses_tanam_id" => $prosesTanamID,
