@@ -348,6 +348,74 @@ class SmartFarmingMobileAORepository implements SmartFarmingMobileAOInterface
         return $data;
     }
 
+    public function calculateRabOld($luas_lahan, $clusterID)
+    {
+        $rab = Rab::where('active_st', 'yes')->where('cluster_id', $clusterID)->orderBy('nama_rab', 'asc')->first()->toArray();
+        $rab['nilai_pembiayaan'] = 0;
+        $satu_hektar = 10000;
+        //default
+        $paket_terkecil = 1500;
+        while (true) {
+            $break = false;
+            $current_luas_lahan = $satu_hektar;
+            if ($luas_lahan < $paket_terkecil) {
+                $current_luas_lahan = $paket_terkecil;
+                $break = true;
+            } else if ($luas_lahan < $satu_hektar) {
+                $tmp_current_luas_lahan = $luas_lahan / 500;
+                $current_luas_lahan = 500 * (ceil($tmp_current_luas_lahan));
+                $break = true;
+            }
+            $rabMingguan = SmartFarmingMobileAO::GetDetailRabMingguan($rab['rab_id'], $current_luas_lahan);
+            // merubah collection object menjadi array
+            $arr_rab_mingguan = array_map(function ($value) {
+                return (array)$value;
+            }, $rabMingguan);
+            foreach ($arr_rab_mingguan as  $rab_mingguan) {
+                // array item
+                $rab['item'][$rab_mingguan['item_rab_id']]['item_rab_id']  = $rab_mingguan['item_rab_id'];
+                $rab['item'][$rab_mingguan['item_rab_id']]['nama_item']    = $rab_mingguan['nama_item'];
+                $rab['item'][$rab_mingguan['item_rab_id']]['harga']        = $rab_mingguan['harga'];
+                $rab['item'][$rab_mingguan['item_rab_id']]['satuan']       = $rab_mingguan['satuan'];
+                if (isset($rab['item'][$rab_mingguan['item_rab_id']]['jumlah'])) {
+                    $rab['item'][$rab_mingguan['item_rab_id']]['jumlah']  += $rab_mingguan['jumlah'];
+                } else {
+                    $rab['item'][$rab_mingguan['item_rab_id']]['jumlah']  = $rab_mingguan['jumlah'];
+                }
+                // kegiatan mingguan
+                $key = $rab_mingguan['proses_tanam_id'] . $rab_mingguan['item_rab_id'];
+                $rab['kegiatan_mingguan'][$key]['rab_detail_mingguan_id'] = $rab_mingguan['rab_detail_mingguan_id'];
+                $rab['kegiatan_mingguan'][$key]['proses_tanam_id']        = $rab_mingguan['proses_tanam_id'];
+                $rab['kegiatan_mingguan'][$key]['proses_tanam_nama']      = $rab_mingguan['proses_tanam_nama'];
+                $rab['kegiatan_mingguan'][$key]['item_rab_id']            = $rab_mingguan['item_rab_id'];
+                $rab['kegiatan_mingguan'][$key]['nama_item']              = $rab_mingguan['nama_item'];
+                $rab['kegiatan_mingguan'][$key]['harga']                  = $rab_mingguan['harga'];
+                $rab['kegiatan_mingguan'][$key]['satuan']                 = $rab_mingguan['satuan'];
+                $rab['kegiatan_mingguan'][$key]['sort']                   = $rab_mingguan['sort'];
+                if (isset($rab['kegiatan_mingguan'][$key]['jumlah'])) {
+                    $rab['kegiatan_mingguan'][$key]['jumlah'] += $rab_mingguan['jumlah'];
+                } else {
+                    $rab['kegiatan_mingguan'][$key]['jumlah'] = $rab_mingguan['jumlah'];
+                }
+                // nilai pembiayaan
+                $rab['nilai_pembiayaan'] += ($rab_mingguan['jumlah'] * $rab_mingguan['harga']);
+            }
+            $luas_lahan -= $satu_hektar;
+            if ($break) {
+                break;
+            }
+        }
+        usort($rab['kegiatan_mingguan'], function ($a, $b) {
+            if ($a['sort'] == $b['sort']) {
+                return $a['rab_detail_mingguan_id'] - $b['rab_detail_mingguan_id'];
+            }
+            return $a['sort'] - $b['sort'];
+        });
+        $rab['item'] = array_values($rab['item']);
+        $rab['kegiatan_mingguan'] = array_values($rab['kegiatan_mingguan']);
+        return $rab;
+    }
+
     public function calculateRab($luas_lahan, $clusterID)
     {
         $rabs = Rab::where('active_st', 'yes')->where('cluster_id', $clusterID)->orderBy('nama_rab', 'asc')->get()->toArray();
