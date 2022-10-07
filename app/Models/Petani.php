@@ -836,7 +836,7 @@ class Petani extends Model
         return $query;
     }
 
-    public function scopePetaniGetPetaniLahanShow($lahanID)
+    public function scopePetaniGetPetaniLahanShow($query, $lahanID)
     {
         $query = DB::connection('mysql')->select("SELECT a.lahan_id,
                     a.nama_pemilik,
